@@ -20,6 +20,9 @@ import Typography from "@mui/material/Typography"
 import type {Game, Matches, ScheduleList} from "./types"
 import Divider from "@mui/material/Divider"
 
+// 需要获取赛程的比赛
+const REG_EIDS = /(全球总决赛)|(MSI)|(LPL)|(LCK)|(NEST)/
+
 // 样式
 const sxOneLine: SxProps<Theme> = {
   overflow: "hidden",
@@ -50,7 +53,7 @@ const DayItem = (props: {
 }): JSX.Element => {
   // 一场比赛的布局
   const subItems = props.matches.map(game => (
-    <Stack key={game.starttime} direction={"row"} alignItems={"center"} spacing={1}
+    <Stack key={game.starttime} direction={"row"} alignItems={"center"} spacing={2} sx={{marginBottom: 2}}
            bgcolor={game.live ? alpha("rgb(82, 196, 26)", 0.2) : ""}>
       {/* 比赛时间 */}
       <Typography>{game.starttime}</Typography>
@@ -67,7 +70,7 @@ const DayItem = (props: {
         </Stack>
 
         {/* 客队 */}
-        <Stack direction={"row"} alignItems={"center"}>
+        <Stack direction={"row"} alignItems={"center"} sx={{marginTop: 1}}>
           <Avatar sx={sxTeamAavatar} src={game.twoicon}/>
           <Typography title={game.twoseedname}
                       sx={{...sxTeamName, color: game.isover && game.onewin > game.twowin ? '#888' : 'inhert'}}>
@@ -77,7 +80,7 @@ const DayItem = (props: {
       </Stack>
 
       {/* 比分 */}
-      <Stack direction={"row"} mr={2}>
+      <Stack direction={"row"}>
         {
           game.onewin !== '0' || game.twowin !== '0' ? (
             <Stack alignItems={"center"}>
@@ -98,7 +101,7 @@ const DayItem = (props: {
               </Stack>
 
               {/* 客队 */}
-              <Stack direction={"row"} alignItems={"center"}>
+              <Stack direction={"row"} alignItems={"center"} sx={{marginTop: 1}}>
                 <Typography width={1} mr={1}>{game.twowin}</Typography>
                 <Stack direction={"row"} spacing={"3px"}>
                   {
@@ -121,7 +124,7 @@ const DayItem = (props: {
       </Stack>
 
       {/* 比赛名 */}
-      <Typography title={game.ename} sx={{...sxOneLine}} pl={2}>
+      <Typography title={game.ename} sx={{...sxOneLine, color: "#888"}} pl={2}>
         {game.ename}
       </Typography>
     </Stack>
@@ -164,8 +167,6 @@ const MatchesComp = (): JSX.Element => {
 
   // 设置当日的日期（如"20210125"）
   let today = date(new Date(), "YYYYmmdd")
-  // 需要获取赛程的比赛
-  const REG_EIDS = /(全球总决赛)|(LPL)|(LCK)|(NEST)/
 
   // 因为 scroll 事件会频繁触发，所以设置 setTimeout 避免多次获取赛程
   // 另外只使用 loadBusy 状态量时，如果网速过快--，起不了避免多次赛程的作用，所以另加 setTimeout 使用
