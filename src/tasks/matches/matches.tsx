@@ -64,7 +64,11 @@ const DayItem = (props: {
         <Stack direction={"row"} alignItems={"center"}>
           <Avatar sx={sxTeamAavatar} src={game.oneicon}/>
           <Typography title={game.oneseedname}
-                      sx={{...sxTeamName, color: game.isover && game.onewin < game.twowin ? '#888' : 'inhert'}}>
+                      sx={{
+                        ...sxTeamName,
+                        marginLeft: 1,
+                        color: game.isover && game.onewin < game.twowin ? '#888' : 'inhert'
+                      }}>
             {game.oneseedname}
           </Typography>
         </Stack>
@@ -73,7 +77,11 @@ const DayItem = (props: {
         <Stack direction={"row"} alignItems={"center"} sx={{marginTop: 1}}>
           <Avatar sx={sxTeamAavatar} src={game.twoicon}/>
           <Typography title={game.twoseedname}
-                      sx={{...sxTeamName, color: game.isover && game.onewin > game.twowin ? '#888' : 'inhert'}}>
+                      sx={{
+                        ...sxTeamName,
+                        marginLeft: 1,
+                        color: game.isover && game.onewin > game.twowin ? '#888' : 'inhert'
+                      }}>
             {game.twoseedname}
           </Typography>
         </Stack>
