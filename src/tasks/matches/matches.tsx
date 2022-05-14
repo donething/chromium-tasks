@@ -140,8 +140,10 @@ const DayItem = (props: {
 
   // 一日内的所有比赛列表
   return (
-    <Box component={"li"} mb={1}
-         sx={{backgroundColor: props.isMarked ? alpha("rgb(82, 196, 26)", 0.1) : "inherit"}}>
+    <Box component={"li"}
+         id={props.isMarked ? "matches-recent" : ""}
+         mb={1}
+         bgcolor={props.isMarked ? alpha("rgb(82, 196, 26)", 0.1) : "inherit"}>
       {/* 日期 */}
       <Typography mb={1} color={"#888"} fontSize={"14px"} fontWeight={"bold"}>{props.dateBlock}</Typography>
 
@@ -239,7 +241,7 @@ const MatchesComp = (): JSX.Element => {
       } else {
         setMatches([...matchesTmp])
         // 首次获取赛程时，自动滚动到当天的赛程（因为渲染问题，需要延迟一会儿）
-        scrollIntoView(".matches-recent")
+        scrollIntoView("#matches-recent")
       }
 
       setLoadDone()
@@ -317,7 +319,7 @@ const MatchesComp = (): JSX.Element => {
         <DoSvgIcon svg={IconLCK} viewBox={"0 0 775 550"}/>
       </IconButton>
 
-      <IconButton title="跳转到最近的赛程" onClick={_ => scrollIntoView('.matches-recent')}>
+      <IconButton title="跳转到最近的赛程" onClick={_ => scrollIntoView('#matches-recent')}>
         <DoSvgIcon svg={IconToCur}/>
       </IconButton>
     </Stack>
