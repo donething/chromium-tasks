@@ -2,11 +2,10 @@ import {request} from "do-utils/dist/utils"
 import type {FavOnlineResp, RoomStatus} from "./types"
 import type React from "react"
 import type {DoSnackbarProps} from "do-comps"
+import {LS_HOST} from "./zuji"
 
 const TAG = "[ZuJi]"
 
-// API
-const friendApi = "https://appgw-el.yunuo365.cn/v2/friendcircle"
 // 请求头
 const headers = {
   "Host": "appgw-el.yunuo365.cn",
@@ -16,7 +15,7 @@ const headers = {
 }
 
 // 获取直播间的状态信息
-export const getRoomsStatus = async (ssid: string,
+export const getRoomsStatus = async (ssid: string, host: string,
                                      setRooms: React.Dispatch<React.SetStateAction<RoomStatus[] | undefined>>,
                                      showSb: (ps: DoSnackbarProps) => void) => {
   // 分页获取
@@ -28,7 +27,8 @@ export const getRoomsStatus = async (ssid: string,
     // 每一次网络请求后，调用一次回调 callback() 处理主播信息
     let data = `count=${step}&sessionid=${ssid}&start=${start}`
     // 执行请求、解析数据
-    let response = await request(friendApi, data, {headers: headers})
+    let url = `${host}/v2/friendcircle`
+    let response = await request(url, data, {headers: headers})
     let text = await response.text()
     // 先替换小数为字符串，以免损失精度
     text = text.replace(/"gps_latitude":\s*([\d.]+)/, '"gps_latitude": "$1"')

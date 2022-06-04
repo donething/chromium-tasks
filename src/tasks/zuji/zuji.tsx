@@ -19,12 +19,14 @@ import Alert from "@mui/material/Alert"
 import Typography from "@mui/material/Typography"
 import Divider from "@mui/material/Divider"
 
-// localstorage 中保存用户 ssid 的键
+// localstorage 中保存用户 ssid 的键、网站域名的键
 const LS_SSID = "ct_ssid"
+export const LS_HOST = "host"
 
 // 足迹设置面板
 const ZJSettings = (props: { showDialog: (ps: DoDialogProps) => void }): JSX.Element => {
   const [ssid, setSsid] = useState("")
+  const [host, setHost] = useState("")
 
   // 显示消息
   const {showSb} = useSharedSnackbar()
@@ -35,20 +37,22 @@ const ZJSettings = (props: { showDialog: (ps: DoDialogProps) => void }): JSX.Ele
 
   return (
     <Stack spacing={2} paddingTop={1}>
-      <TextField value={ssid} placeholder={"用户的 SSID"} label={"用户的 SSID"} size={"small"}
+      <TextField value={ssid} placeholder={"如 ecM6HscOKsCAqsOGH"} label={"用户的SSID"} size={"small"}
                  onChange={event => setSsid(event.target.value)}/>
+      <TextField value={host} placeholder={"如 https://example.com"} label={"网站的域名"} size={"small"}
+                 onChange={event => setHost(event.target.value)}/>
 
       <Stack direction={"row"} justifyContent={"space-between"}>
         <Button color={"inherit"} onClick={() => props.showDialog({open: false})}>取消</Button>
 
         <Button onClick={() => {
-          console.log("输入", ssid)
-          if (!ssid) {
-            showSb({open: true, severity: "info", message: "用户 SSID 为空"})
+          if (!ssid || !host) {
+            showSb({open: true, severity: "info", message: "用户SSID 或 网站域名 为空"})
             return
           }
 
           localStorage.setItem(LS_SSID, ssid)
+          localStorage.setItem(LS_HOST, host)
           window.location.reload()
         }}>保存</Button>
       </Stack>
@@ -126,20 +130,21 @@ export const Zuji = () => {
     document.title = `足迹直播 - ${chrome.runtime.getManifest().name}`
 
     let ssid = localStorage.getItem(LS_SSID)
-    if (!ssid) {
-      showSb({open: true, severity: "info", message: "用户 SSID 为空，请先设置"})
+    let host = localStorage.getItem(LS_HOST)
+    if (!ssid || !host) {
+      showSb({open: true, severity: "info", message: "用户SSID 或网站域名 为空，请先设置"})
       return
     }
 
     // 获取房间号
-    getRoomsStatus(ssid, setRooms, showSb)
+    getRoomsStatus(ssid, host, setRooms, showSb)
   }, [])
 
   return (
     <DoPanel isRow header={{
       title: `有 ${rooms?.length || 0} 个主播在线`, action: <Button onClick={_ => showDialog({
         open: true, title: "设置", content: <ZJSettings showDialog={showDialog}/>
-      })}>输入 SSID</Button>
+      })}>设置</Button>
     }} content={
       <Fragment>
         {
