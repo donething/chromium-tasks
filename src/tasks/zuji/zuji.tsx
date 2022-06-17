@@ -21,7 +21,7 @@ import Divider from "@mui/material/Divider"
 
 // localstorage 中保存用户 ssid 的键、网站域名的键
 const LS_SSID = "ct_ssid"
-export const LS_HOST = "host"
+const LS_HOST = "host"
 
 // 足迹设置面板
 const ZJSettings = (props: { showDialog: (ps: DoDialogProps) => void }): JSX.Element => {
