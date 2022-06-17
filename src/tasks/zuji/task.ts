@@ -2,17 +2,8 @@ import {request} from "do-utils/dist/utils"
 import type {FavOnlineResp, RoomStatus} from "./types"
 import type React from "react"
 import type {DoSnackbarProps} from "do-comps"
-import {LS_HOST} from "./zuji"
 
 const TAG = "[ZuJi]"
-
-// 请求头
-const headers = {
-  "Host": "appgw-el.yunuo365.cn",
-  "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
-  "User-Agent": "yipinlive 6.0.0 rv:220129000 gy Release (iPhone XR; iOS 15.3.1; zh_CN)",
-  "Accept-Language": "zh-Hans-CN;q=1.0",
-}
 
 // 获取直播间的状态信息
 export const getRoomsStatus = async (ssid: string, host: string,
@@ -21,6 +12,14 @@ export const getRoomsStatus = async (ssid: string, host: string,
   // 分页获取
   let start = 0
   let step = 100
+
+  // 请求头
+  const headers = {
+    "Host": host.substring(host.lastIndexOf("/") + 1),
+    "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
+    "User-Agent": "yipinlive 6.0.0 rv:220129000 gy Release (iPhone XR; iOS 15.3.1; zh_CN)",
+    "Accept-Language": "zh-Hans-CN;q=1.0",
+  }
 
   // 获取，完成后退出
   while (true) {

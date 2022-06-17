@@ -37,7 +37,8 @@ const ZJSettings = (props: { showDialog: (ps: DoDialogProps) => void }): JSX.Ele
 
   return (
     <Stack spacing={2} paddingTop={1}>
-      <TextField value={ssid} placeholder={"如 ecM6HscOKsCAqsOGH"} label={"用户的SSID"} size={"small"}
+      <TextField value={ssid} size={"small"} label={"用户的SSID"}
+                 placeholder={"抓包获取 sessionid，网址如 /v2/recommendhotusers?sessionid=xxx"}
                  onChange={event => setSsid(event.target.value)}/>
       <TextField value={host} placeholder={"如 https://example.com"} label={"网站的域名"} size={"small"}
                  onChange={event => setHost(event.target.value)}/>
