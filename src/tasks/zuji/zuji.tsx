@@ -33,6 +33,7 @@ const ZJSettings = (props: { showDialog: (ps: DoDialogProps) => void }): JSX.Ele
 
   useEffect(() => {
     setSsid(localStorage.getItem(LS_SSID) || "")
+    setHost(localStorage.getItem(LS_HOST) || "")
   }, [])
 
   return (
@@ -40,7 +41,10 @@ const ZJSettings = (props: { showDialog: (ps: DoDialogProps) => void }): JSX.Ele
       <TextField value={ssid} size={"small"} label={"用户的SSID"}
                  placeholder={"抓包获取 sessionid，网址如 /v2/recommendhotusers?sessionid=xxx"}
                  onChange={event => setSsid(event.target.value)}/>
-      <TextField value={host} placeholder={"如 https://example.com"} label={"网站的域名"} size={"small"}
+      <TextField value={host}
+                 placeholder={"如 https://example.com，" +
+                   "网址来源如 https://appgw-el.fkw03.cn/v2/recommendhotusers?count=4&sessionid=xxx"}
+                 label={"网站的域名"} size={"small"}
                  onChange={event => setHost(event.target.value)}/>
 
       <Stack direction={"row"} justifyContent={"space-between"}>
