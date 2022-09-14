@@ -12,6 +12,7 @@ import {ThemeProvider} from "@mui/material"
 import DoTheme from "./comm/DoTheme"
 import MatchesComp from "./tasks/matches/matches"
 import './index.css'
+import DYSTabs from "./tasks/dys"
 
 ReactDOM.render(
   <React.StrictMode>
@@ -29,6 +30,7 @@ ReactDOM.render(
           <Route path="/tasks" element={<Tasks/>}/>
           <Route path="/pic_tasks" element={<PicTasksComp/>}/>
           <Route path="/zuji" element={<Zuji/>}/>
+          <Route path="/dys" element={<DYSTabs/>}/>
         </Routes>
       </HashRouter>
     </ThemeProvider>

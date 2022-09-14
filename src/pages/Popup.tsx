@@ -7,6 +7,7 @@ import IconTasks from "../icons/tasks.svg"
 import IconPics from "../icons/pic.svg"
 import IconZuji from "../icons/foot.svg"
 import IconOptions from "../icons/options.svg"
+import IconDYS from "../icons/dys.svg"
 import {DoSvgIcon} from "do-comps"
 
 // 弹出窗
@@ -16,7 +17,7 @@ const Popup = () => {
   }, [])
 
   return (
-    <Stack width={80}>
+    <Stack width={100}>
       <Button startIcon={<DoSvgIcon svg={IconAttention}/>}
               onClick={() => chrome.tabs.create({url: "/index.html#/attentions"})}>关注
       </Button>
@@ -39,6 +40,10 @@ const Popup = () => {
 
       <Button startIcon={<DoSvgIcon svg={IconOptions}/>}
               onClick={() => chrome.tabs.create({url: "/index.html#/options"})}>选项
+      </Button>
+
+      <Button startIcon={<DoSvgIcon svg={IconDYS}/>}
+              onClick={() => chrome.tabs.create({url: "/index.html#/dys"})}>德云
       </Button>
     </Stack>
   )
