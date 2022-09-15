@@ -192,8 +192,8 @@ const DYSTabs = (): JSX.Element => {
     <Stack direction={"column"} bgcolor={"background.paper"}
            sx={{height: "100vh", margin: "0 160px", display: "flex", flexFlow: "column"}}>
       {/* Tab 标签 */}
-      <Box sx={{width: '100%', display: "flex", flex: "0 1 auto"}}>
-        <Tabs value={tabCurrent} onChange={handleChange}>
+      <Box sx={{width: '100%', flex: "0 1 auto"}}>
+        <Tabs value={tabCurrent} onChange={handleChange} centered={true}>
           {
             SeriesInfos.map(item => <Tab label={item.title}/>)
           }
@@ -224,8 +224,8 @@ const DYSTabs = (): JSX.Element => {
       </Box>
 
       {/* 分页 */}
-      <Box sx={{flex: "0 1 auto", marginTop: 2, marginBottom: 2}}>
-        <Pagination count={pTotalList[tabCurrent]}
+      <Box sx={{flex: "0 1 auto", marginTop: 2, marginBottom: 2, display: "flex", justifyContent: "center"}}>
+        <Pagination count={pTotalList[tabCurrent]} size={"large"}
                     onChange={(event: object, p: number) => setPagesList(prev => {
                       // 更新页数
                       let n = [...prev]
