@@ -35,11 +35,11 @@ a {
   color: #333
 }
 
-a:visited {
+.row-list a:visited {
   color: #888;
 }
 
-a:hover {
+.row-list a:hover {
   color: #40a9ff;
 }
 
