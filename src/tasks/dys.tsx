@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react"
-import {Box, Button, Card, Pagination, Stack, Tab, Tabs} from "@mui/material"
+import {Box, Pagination, Stack, Tab, Tabs} from "@mui/material"
 import {request} from "do-utils"
 import {useSharedSnackbar} from "do-comps"
 import {date} from "do-utils/dist/text"
@@ -201,20 +201,17 @@ const DYSTabs = (): JSX.Element => {
       </Box>
 
       {/* 视频列表 */}
-      <Box sx={{
-        display: "flex", flexFlow: "row wrap", flex: "1 1 auto", justifyContent: "space-between",
-        alignContent: "flex-start", marginTop: 1, overflow: "auto"
-      }}>
+      <Box className="row-list" sx={{flex: "1 1 auto", marginTop: 1, overflow: "auto"}}>
         {
           dataList[tabCurrent].map(item =>
-            <Stack direction={"column"} width={"160px"} padding={"10px"} margin={"3px"}>
+            <Stack className="row-item" direction={"column"} width={"160px"} padding={"10px"} margin={"3px"}>
               <a href={`https://www.bilibili.com/video/${item.bvid}`} target={"_blank"}>
                 <img src={item.pic} style={{width: "160px", height: "100px", borderRadius: "4px"}} alt={"封面"}/>
               </a>
 
               <a title={item.title} href={`https://www.bilibili.com/video/${item.bvid}`} target={"_blank"} style={{
-                fontSize: "14px", color: "#333", marginTop: "3px", lineHeight: "20px", height: "40px",
-                display: "block", overflow: "hidden", textDecoration: "none"
+                fontSize: "14px", marginTop: "3px", lineHeight: "20px", height: "40px",
+                display: "block", overflow: "hidden"
               }}>{item.title}</a>
 
               <Stack direction={"row"} justifyContent={"space-between"} color={"#999"} marginTop={"3px"}>
@@ -227,7 +224,7 @@ const DYSTabs = (): JSX.Element => {
       </Box>
 
       {/* 分页 */}
-      <Box sx={{flex: "0 1 auto", marginTop: 1, marginBottom: 2}}>
+      <Box sx={{flex: "0 1 auto", marginTop: 2, marginBottom: 2}}>
         <Pagination count={pTotalList[tabCurrent]}
                     onChange={(event: object, p: number) => setPagesList(prev => {
                       // 更新页数
