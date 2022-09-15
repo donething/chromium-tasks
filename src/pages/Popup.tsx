@@ -26,8 +26,8 @@ const Popup = () => {
               onClick={() => chrome.tabs.create({url: "/index.html#/matches"})}>赛程
       </Button>
 
-      <Button startIcon={<DoSvgIcon svg={IconTasks}/>}
-              onClick={() => chrome.tabs.create({url: "/index.html#/tasks"})}>任务
+      <Button startIcon={<DoSvgIcon svg={IconDYS}/>}
+              onClick={() => chrome.tabs.create({url: "/index.html#/dys"})}>德云
       </Button>
 
       <Button startIcon={<DoSvgIcon svg={IconPics}/>}
@@ -38,12 +38,12 @@ const Popup = () => {
               onClick={() => chrome.tabs.create({url: "/index.html#/zuji"})}>足迹
       </Button>
 
-      <Button startIcon={<DoSvgIcon svg={IconOptions}/>}
-              onClick={() => chrome.tabs.create({url: "/index.html#/options"})}>选项
+      <Button startIcon={<DoSvgIcon svg={IconTasks}/>}
+              onClick={() => chrome.tabs.create({url: "/index.html#/tasks"})}>任务
       </Button>
 
-      <Button startIcon={<DoSvgIcon svg={IconDYS}/>}
-              onClick={() => chrome.tabs.create({url: "/index.html#/dys"})}>德云
+      <Button startIcon={<DoSvgIcon svg={IconOptions}/>}
+              onClick={() => chrome.tabs.create({url: "/index.html#/options"})}>选项
       </Button>
     </Stack>
   )
