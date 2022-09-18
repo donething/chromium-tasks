@@ -17,7 +17,7 @@ const Popup = () => {
   }, [])
 
   return (
-    <Stack width={100}>
+    <Stack width={80}>
       <Button startIcon={<DoSvgIcon svg={IconAttention}/>}
               onClick={() => chrome.tabs.create({url: "/index.html#/attentions"})}>关注
       </Button>
@@ -30,12 +30,12 @@ const Popup = () => {
               onClick={() => chrome.tabs.create({url: "/index.html#/dys"})}>德云
       </Button>
 
-      <Button startIcon={<DoSvgIcon svg={IconPics}/>}
-              onClick={() => chrome.tabs.create({url: "/index.html#/pic_tasks"})}>图集
-      </Button>
-
       <Button startIcon={<DoSvgIcon svg={IconZuji}/>}
               onClick={() => chrome.tabs.create({url: "/index.html#/zuji"})}>足迹
+      </Button>
+
+      <Button startIcon={<DoSvgIcon svg={IconPics}/>}
+              onClick={() => chrome.tabs.create({url: "/index.html#/pic_tasks"})}>图集
       </Button>
 
       <Button startIcon={<DoSvgIcon svg={IconTasks}/>}
