@@ -1,14 +1,9 @@
 import {request} from "do-utils/dist/utils"
 import type {FavOnlineResp, RoomStatus} from "./types"
-import type React from "react"
-import type {DoSnackbarProps} from "do-comps"
-
-const TAG = "[ZuJi]"
+import {JResult} from "../../comm/entities"
 
 // 获取直播间的状态信息
-export const getRoomsStatus = async (ssid: string, host: string,
-                                     setRooms: React.Dispatch<React.SetStateAction<RoomStatus[] | undefined>>,
-                                     showSb: (ps: DoSnackbarProps) => void) => {
+export const getRoomsStatus = async (ssid: string, host: string): Promise<JResult<Array<RoomStatus>>> => {
   // 分页获取
   let start = 0
   let step = 100
@@ -21,13 +16,15 @@ export const getRoomsStatus = async (ssid: string, host: string,
     "Accept-Language": "zh-Hans-CN;q=1.0",
   }
 
+  // 保存主播在线数据，以返回
+  const data: Array<RoomStatus> = []
   // 获取，完成后退出
   while (true) {
     // 每一次网络请求后，调用一次回调 callback() 处理主播信息
-    let data = `count=${step}&sessionid=${ssid}&start=${start}`
+    let postData = `count=${step}&sessionid=${ssid}&start=${start}`
     // 执行请求、解析数据
     let url = `${host}/v2/friendcircle`
-    let response = await request(url, data, {headers: headers})
+    let response = await request(url, postData, {headers: headers})
     let text = await response.text()
     // 先替换小数为字符串，以免损失精度
     text = text.replace(/"gps_latitude":\s*([\d.]+)/, '"gps_latitude": "$1"')
@@ -35,28 +32,27 @@ export const getRoomsStatus = async (ssid: string, host: string,
     let obj: FavOnlineResp = JSON.parse(text)
 
     if (obj.reterr) {
-      console.log(TAG, "获取关注的主播列表时出错：", obj.reterr)
-      showSb({open: true, severity: "error", message: "获取关注的主播列表时出错"})
-      return
+      return new JResult<Array<RoomStatus>>(1000, `获取主播列表出错：${obj.reterr}`)
     }
 
     // 本次请求没有主播在线
     if (obj.retinfo.objects.length == 0) {
-      setRooms(prev => prev ? [...prev] : [])
-      return
+      break
     }
 
+    // 添加
     for (let item of obj.retinfo.objects) {
       item.content.type = item.type
-      setRooms(prev => prev ? [...prev, item.content] : [item.content])
+      data.push(item.content)
     }
 
+    // 已完成读取关注的主播列表
     if (obj.retinfo.count < step) {
-      console.log(TAG, "已读取关注的主播列表")
-      showSb({open: true, severity: "success", message: "已读取关注的主播列表"})
       break
     }
 
     start += 100
   }
+
+  return new JResult<Array<RoomStatus>>(0, "已读取所有主播的在线状态", data)
 }

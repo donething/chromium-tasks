@@ -6,7 +6,7 @@ import Stack from "@mui/material/Stack"
 import {DoDialogProps, useSharedDialog, useSharedSnackbar, DoPanel, DoText} from "do-comps"
 import TextField from "@mui/material/TextField"
 import Card from "@mui/material/Card"
-import {Avatar, CardHeader, IconButton} from "@mui/material"
+import {AlertColor, Avatar, CardHeader, IconButton} from "@mui/material"
 import CardContent from "@mui/material/CardContent"
 import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined'
 import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined'
@@ -18,6 +18,13 @@ import CardActions from "@mui/material/CardActions"
 import Alert from "@mui/material/Alert"
 import Typography from "@mui/material/Typography"
 import Divider from "@mui/material/Divider"
+import type {JResult} from "../../comm/entities"
+
+// 提示消息的类型
+type TipsType = {
+  color: AlertColor
+  message: string
+}
 
 // localstorage 中保存用户 ssid 的键、网站域名的键
 const LS_SSID = "ct_ssid"
@@ -126,23 +133,58 @@ const AnchorItem = (props: { room: RoomStatus }) => {
 export const Zuji = () => {
   // rooms 为 undefined 表示正在获取；[] 长度为 0 表示没有关注的主播在播
   const [rooms, setRooms] = useState<Array<RoomStatus> | undefined>(undefined)
+  // 网络出错、为空时的提示信息
+  const [tips, setTips] = useState<TipsType>({color: "info", message: "正在获取……"})
 
   // 显示消息
-  const {showSb} = useSharedSnackbar()
   const {showDialog} = useSharedDialog()
 
-  useEffect(() => {
-    document.title = `足迹直播 - ${chrome.runtime.getManifest().name}`
+  // 获取在线列表
+  const getData = async () => {
+    // 先重置界面的数据
+    setRooms([])
 
     let ssid = localStorage.getItem(LS_SSID)
     let host = localStorage.getItem(LS_HOST)
     if (!ssid || !host) {
-      showSb({open: true, severity: "info", message: "用户SSID 或网站域名 为空，请先设置"})
+      console.log("用户SSID 或网站域名 为空，请先设置")
+      setTips({color: "info", message: "用户SSID 或网站域名 为空，请先设置"})
       return
     }
 
-    // 获取房间号
-    getRoomsStatus(ssid, host, setRooms, showSb)
+    // 解析数据，展示
+    let jResult: JResult<Array<RoomStatus>> = await getRoomsStatus(ssid, host)
+    if (jResult.code !== 0) {
+      console.log(jResult.msg)
+      setTips({color: "error", message: jResult.msg || ""})
+      return
+    }
+
+    // 避免判断 data 长度时，还要验证其是否为空，所以先在此判断
+    if (!jResult.data) {
+      console.log("主播数据为空")
+      return
+    }
+
+    if (jResult.data.length === 0) {
+      console.log("没有关注的主播在线")
+      setTips({color: "info", message: "没有关注的主播在线"})
+    } else {
+      setRooms(jResult.data)
+      return
+    }
+  }
+
+  useEffect(() => {
+    document.title = `足迹直播 - ${chrome.runtime.getManifest().name}`
+  }, [])
+
+  useEffect(() => {
+    // 获取在线列表
+    getData().catch(e => {
+      console.log("网络出错，无法获取主播的在线状态：", e)
+      setTips({color: "error", message: "网络出错，无法获取主播的在线状态"})
+    })
   }, [])
 
   return (
@@ -153,11 +195,8 @@ export const Zuji = () => {
     }} content={
       <Fragment>
         {
-          rooms === undefined ?
-            <Alert severity="info">正在获取…</Alert> :
-            rooms.length === 0 ?
-              <Alert severity="info">没有关注的主播在线</Alert> :
-              rooms.map(room => <AnchorItem key={room.name} room={room}/>)
+          rooms === undefined || rooms.length === 0 ? <Alert severity={tips.color}>{tips.message}</Alert> :
+            rooms.map(room => <AnchorItem key={room.name} room={room}/>)
         }
       </Fragment>} sxContent={{padding: 2}}
     />
