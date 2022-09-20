@@ -61,14 +61,20 @@ namespace DYS {
   }
 }
 
-// 需要获取的合集的信息
+// 当前 Tab 的信息
+type TabInfo = { tid?: number, page?: number }
+
+// 需要获取的合集的信息，一个元素用一个 Tab 展示
 const SeriesInfos = [
   {
+    // 对应当前 Tab 的索引，用于恢复网页时，恢复展示之前的 Tab
+    tid: 0,
     title: "直播回放",
     mid: "8739477",
     series_id: "405144"
   },
   {
+    tid: 1,
     title: "解说比赛",
     mid: "8739477",
     series_id: "449435"
@@ -103,13 +109,42 @@ const initDataList = (n: number): [][] => {
   return a
 }
 
+// 返回当前 Tab 的信息，用于恢复展示 Tab 关闭前的数据
+const getTabInfo = (): TabInfo => {
+  // 返回查询字符串的对象形式，如"?q=1"，返回 {q: 1}。使用 obj.get("q")，得到值：1
+  let str = location.href.substring(location.href.lastIndexOf("?") + 1)
+  let obj = new URLSearchParams(str)
+
+  // 提取参数
+  return {tid: Number(obj.get("tid")) || 0, page: Number(obj.get("page")) || 1}
+}
+
+// 保存 Tab 信息到地址栏，以便恢复
+const setTabInfo = (tab: TabInfo) => {
+  // 在地址栏显示
+  let str = `?tid=${tab.tid}&page=${tab.page}`
+  if (location.href.indexOf("?") === -1) {
+    location.href = location.href + str
+  } else {
+    location.href = location.href.substring(0, location.href.lastIndexOf("?")) + str
+  }
+}
+
 // 获取DYS指定视频合集的组件
 const DYSTabs = (): JSX.Element => {
+  // 用于恢复展示 Tab 关闭前的数据
+  const tab = getTabInfo()
+
   // 当前被选择的 Tab 的索引
-  const [tabCurrent, setTabCurrent] = useState(0)
+  const [tabCurrent, setTabCurrent] = useState(tab.tid || 0)
 
   // 每个标签内已获取视频的页数
-  const [pagesList, setPagesList] = useState<Array<number>>(new Array(SeriesInfos.length).fill(1))
+  // 恢复 Tab 关闭前的页数信息
+  const tmpPL = new Array(SeriesInfos.length).fill(1)
+  if (tab.tid != undefined && tab.page && tab.page >= 1) {
+    tmpPL[tab.tid] = tab.page
+  }
+  const [pagesList, setPagesList] = useState<Array<number>>(tmpPL)
   // 每个标签内视频的总页数
   const [pTotalList, setPTotalList] = useState<Array<number>>(new Array(SeriesInfos.length).fill(10000000))
 
@@ -123,6 +158,7 @@ const DYSTabs = (): JSX.Element => {
   // 切换标签即切换索引，索引从 0 开始
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabCurrent(newValue)
+    setTabInfo({tid: newValue, page: pagesList[newValue]})
   }
 
   // 获取数据
@@ -155,6 +191,8 @@ const DYSTabs = (): JSX.Element => {
 
       // 设置该标签内的数据（因为翻页，而不用追加）
       nArray[tabCurrent] = add
+
+      setTabInfo({tid: tabCurrent, page: page})
 
       return nArray
     })
@@ -225,7 +263,7 @@ const DYSTabs = (): JSX.Element => {
 
       {/* 分页 */}
       <Box sx={{flex: "0 1 auto", marginTop: 2, marginBottom: 2, display: "flex", justifyContent: "center"}}>
-        <Pagination count={pTotalList[tabCurrent]} size={"large"}
+        <Pagination page={pagesList[tabCurrent]} count={pTotalList[tabCurrent]} size={"large"}
                     onChange={(event: object, p: number) => setPagesList(prev => {
                       // 更新页数
                       let n = [...prev]
