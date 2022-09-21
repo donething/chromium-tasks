@@ -168,7 +168,7 @@ export const Zuji = () => {
 
     if (jResult.data.length === 0) {
       console.log("没有关注的主播在线")
-      setTips({color: "info", message: "没有关注的主播在线"})
+      setTips({color: "warning", message: "没有关注的主播在线"})
     } else {
       setRooms(jResult.data)
       return
