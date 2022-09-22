@@ -148,7 +148,7 @@ export const Zuji = () => {
     let host = localStorage.getItem(LS_HOST)
     if (!ssid || !host) {
       console.log("用户SSID 或网站域名 为空，请先设置")
-      setTips({color: "info", message: "用户SSID 或网站域名 为空，请先设置"})
+      setTips({color: "warning", message: "用户SSID 或网站域名 为空，请先设置"})
       return
     }
 
