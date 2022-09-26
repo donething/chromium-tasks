@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react"
 import {Box, Pagination, Stack, Tab, Tabs} from "@mui/material"
-import {request} from "do-utils"
+import {request} from "do-utils/dist/utils"
 import {useSharedSnackbar} from "do-comps"
 import {date} from "do-utils/dist/text"
 
@@ -61,8 +61,13 @@ namespace DYS {
   }
 }
 
-// 当前 Tab 的信息
-type TabInfo = { tid?: number, page?: number }
+// 需要保存到存储的数据
+type DysInfo = {
+  // 页面关闭前处在的 Tab 的 ID
+  ctid: number
+  // 每个 Tab 已浏览的页数
+  pages: Array<number>
+}
 
 // 需要获取的合集的信息，一个元素用一个 Tab 展示
 const SeriesInfos = [
@@ -71,13 +76,15 @@ const SeriesInfos = [
     tid: 0,
     title: "直播回放",
     mid: "8739477",
-    series_id: "405144"
+    series_id: "405144",
+    size: 100,
   },
   {
     tid: 1,
     title: "解说比赛",
     mid: "8739477",
-    series_id: "449435"
+    series_id: "449435",
+    size: 30
   }
 ]
 
@@ -110,43 +117,28 @@ const initDataList = (n: number): [][] => {
 }
 
 // 返回当前 Tab 的信息，用于恢复展示 Tab 关闭前的数据
-const getTabInfo = (): TabInfo => {
-  // 返回查询字符串的对象形式，如"?q=1"，返回 {q: 1}。使用 obj.get("q")，得到值：1
-  let str = location.href.substring(location.href.lastIndexOf("?") + 1)
-  let obj = new URLSearchParams(str)
-
-  // 提取参数
-  return {tid: Number(obj.get("tid")) || 0, page: Number(obj.get("page")) || 1}
+const getDysInfo = async (): Promise<DysInfo> => {
+  let data = await chrome.storage.sync.get({dys: {}})
+  return data.dys
 }
 
 // 保存 Tab 信息到地址栏，以便恢复
-const setTabInfo = (tab: TabInfo) => {
-  // 在地址栏显示
-  let str = `?tid=${tab.tid}&page=${tab.page}`
-  if (location.href.indexOf("?") === -1) {
-    location.href = location.href + str
-  } else {
-    location.href = location.href.substring(0, location.href.lastIndexOf("?")) + str
-  }
+const setTabInfo = async (ctid: number, pages: Array<number>) => {
+  let data: DysInfo = {ctid: ctid, pages: pages}
+  await chrome.storage.sync.set({dys: data})
+  console.log("已保存已浏览信息的数据")
 }
 
 // 获取DYS指定视频合集的组件
 const DYSTabs = (): JSX.Element => {
-  // 用于恢复展示 Tab 关闭前的数据
-  const tab = getTabInfo()
-
-  // 当前被选择的 Tab 的索引
-  const [tabCurrent, setTabCurrent] = useState(tab.tid || 0)
+  // 当前被选择的 Tab 的索引，为 -1 表示初始不需要联网获取数据，以免多次获取
+  const [tabCurrent, setTabCurrent] = useState(0)
 
   // 每个标签内已获取视频的页数
   // 恢复 Tab 关闭前的页数信息
-  const tmpPL = new Array(SeriesInfos.length).fill(1)
-  if (tab.tid != undefined && tab.page && tab.page >= 1) {
-    tmpPL[tab.tid] = tab.page
-  }
-  const [pagesList, setPagesList] = useState<Array<number>>(tmpPL)
+  const [pagesList, setPagesList] = useState<Array<number>>(new Array(SeriesInfos.length).fill(1))
   // 每个标签内视频的总页数
-  const [pTotalList, setPTotalList] = useState<Array<number>>(new Array(SeriesInfos.length).fill(10000000))
+  const [pTotalList, setPTotalList] = useState<Array<number>>(new Array(SeriesInfos.length).fill(1))
 
   // 存储所有 Tab 内的视频合集的数据，每个元素表示一个标签
   // fill() 当参数为引用类型时，所有数组元素会共用这个引用，导致更改一个值时，其它元素的值也改变，所以需要避免
@@ -158,13 +150,17 @@ const DYSTabs = (): JSX.Element => {
   // 切换标签即切换索引，索引从 0 开始
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabCurrent(newValue)
-    setTabInfo({tid: newValue, page: pagesList[newValue]})
+    setTabInfo(newValue, pagesList)
   }
 
   // 获取数据
-  const getData = async (mid: string, series_id: string, page: number) => {
+  const getData = async (ctid: number) => {
+    let mid = SeriesInfos[ctid].mid
+    let series_id = SeriesInfos[ctid].series_id
+    let page = pagesList[ctid]
+    let size = SeriesInfos[ctid].size
     let url = `https://api.bilibili.com/x/series/archives?mid=${mid}` +
-      `&series_id=${series_id}&only_normal=true&sort=desc&pn=${page}&ps=100`
+      `&series_id=${series_id}&only_normal=true&sort=desc&pn=${page}&ps=${size}`
     let resp = await request(url)
     let obj: DYS.SeriesResp = await resp.json()
     if (obj.code !== 0) {
@@ -192,20 +188,35 @@ const DYSTabs = (): JSX.Element => {
       // 设置该标签内的数据（因为翻页，而不用追加）
       nArray[tabCurrent] = add
 
-      setTabInfo({tid: tabCurrent, page: page})
+      setTabInfo(tabCurrent, pagesList)
 
       return nArray
     })
   }
 
+  // 初始化
+  const init = async () => {
+    let dysInfo = await getDysInfo()
+    setTabCurrent(dysInfo.ctid || 0)
+    if (dysInfo.pages && dysInfo.pages.length > 0) {
+      // 以下两句，为了当新添加了 SeriesInfos 项目时，将存储的数据恢复到前面，后面则为新项目的数据
+      let tmp = [...pagesList]
+      tmp.splice(0, dysInfo.pages.length)
+      // 恢复数据
+      setPagesList([...dysInfo.pages, ...tmp])
+    }
+  }
+
   useEffect(() => {
     document.title = "B站视频集"
-  })
+
+    init()
+  }, [])
 
   // 当 Tab 改变时，仅当该 Tab 内数据为空时，才获取
   useEffect(() => {
     if (dataList[tabCurrent].length === 0) {
-      getData(SeriesInfos[tabCurrent].mid, SeriesInfos[tabCurrent].series_id, pagesList[tabCurrent])
+      getData(tabCurrent)
     }
   }, [tabCurrent])
 
@@ -216,7 +227,7 @@ const DYSTabs = (): JSX.Element => {
       return
     }
 
-    getData(SeriesInfos[tabCurrent].mid, SeriesInfos[tabCurrent].series_id, pagesList[tabCurrent]).catch(() => {
+    getData(tabCurrent).catch(() => {
       // 获取出错后，回退页数
       setPagesList(prev => {
         let n = [...prev]
