@@ -26,46 +26,50 @@ type TipsType = {
   message: string
 }
 
-// localstorage 中保存用户 ssid 的键、网站域名的键
-const LS_SSID = "ct_ssid"
-const LS_HOST = "host"
+// 保存用户 ssid 的键、网站域名的键
+class Infos {
+  ssid: string = ""
+  host: string = ""
+}
 
 // 足迹设置面板
-const ZJSettings = (props: { showDialog: (ps: DoDialogProps) => void }): JSX.Element => {
-  const [ssid, setSsid] = useState("")
-  const [host, setHost] = useState("")
-
+const ZJSettings = (props: {
+  infos: Infos,
+  setInfos: React.Dispatch<React.SetStateAction<Infos>>,
+  showDialog: (ps: DoDialogProps) => void
+}): JSX.Element => {
+  // 如果直接用 props.infos，由于TextField onChange 的原因每次改变输入框的值后，都将引起 props.infos 的改变
+  // 导致父组件中重新请求网络数据，进而影响到本组件，这是不必要的。需要临时保存，等按确定按钮后，才生效
+  const [tmpInfos, setTmpInfos] = useState({...props.infos})
   // 显示消息
   const {showSb} = useSharedSnackbar()
 
-  useEffect(() => {
-    setSsid(localStorage.getItem(LS_SSID) || "")
-    setHost(localStorage.getItem(LS_HOST) || "")
-  }, [])
-
   return (
     <Stack spacing={2} paddingTop={1}>
-      <TextField value={ssid} size={"small"} label={"用户的SSID"}
-                 placeholder={"抓包获取 sessionid，网址如 /v2/recommendhotusers?sessionid=xxx"}
-                 onChange={event => setSsid(event.target.value)}/>
-      <TextField value={host}
+      <TextField value={tmpInfos.ssid} size={"small"} label={"用户的SSID"}
+                 placeholder={"抓包获取 sessionid，网址如 /v2/recommend?sessionid=xxx"}
+                 onChange={event => setTmpInfos({...tmpInfos, ssid: event.target.value})}/>
+      <TextField value={tmpInfos.host}
                  placeholder={"如 https://example.com，" +
-                   "网址来源如 https://appgw-el.fkw03.cn/v2/recommendhotusers?count=4&sessionid=xxx"}
+                   "网址来源如 https://appgw-el.fkw03.cn/v2/recommend?count=4&sessionid=xxx"}
                  label={"网站的域名"} size={"small"}
-                 onChange={event => setHost(event.target.value)}/>
+                 onChange={event => setTmpInfos({...tmpInfos, host: event.target.value})}/>
 
       <Stack direction={"row"} justifyContent={"space-between"}>
         <Button color={"inherit"} onClick={() => props.showDialog({open: false})}>取消</Button>
 
         <Button onClick={() => {
-          if (!ssid || !host) {
-            showSb({open: true, severity: "info", message: "用户SSID 或 网站域名 为空"})
+          if (!tmpInfos.ssid || !tmpInfos.host) {
+            showSb({open: true, severity: "warning", message: "用户SSID 或 网站域名 为空"})
             return
           }
 
-          localStorage.setItem(LS_SSID, ssid)
-          localStorage.setItem(LS_HOST, host)
-          window.location.reload()
+          chrome.storage.sync.set({zuji: tmpInfos}).then(() => {
+            console.log("已存储设置的数据")
+            props.setInfos(tmpInfos)
+            props.showDialog({open: false})
+            showSb({open: true, message: "已存储设置的数据", severity: "success"})
+          })
         }}>保存</Button>
       </Stack>
     </Stack>
@@ -131,6 +135,8 @@ const AnchorItem = (props: { room: RoomStatus }) => {
 
 // 面板
 export const Zuji = () => {
+  // 设置的数据
+  const [infos, setInfos] = useState(new Infos())
   // rooms 为 undefined 表示正在获取；[] 长度为 0 表示没有关注的主播在播
   const [rooms, setRooms] = useState<Array<RoomStatus> | undefined>(undefined)
   // 网络出错、为空时的提示信息
@@ -144,8 +150,8 @@ export const Zuji = () => {
     // 先重置界面的数据
     setRooms([])
 
-    let ssid = localStorage.getItem(LS_SSID)
-    let host = localStorage.getItem(LS_HOST)
+    let ssid = infos.ssid
+    let host = infos.host
     if (!ssid || !host) {
       console.log("用户SSID 或网站域名 为空，请先设置")
       setTips({color: "warning", message: "用户SSID 或网站域名 为空，请先设置"})
@@ -175,8 +181,16 @@ export const Zuji = () => {
     }
   }
 
+  // 初始化
+  const init = async () => {
+    let data = await chrome.storage.sync.get({zuji: new Infos()})
+    setInfos(data.zuji)
+  }
+
   useEffect(() => {
     document.title = `足迹直播 - ${chrome.runtime.getManifest().name}`
+
+    init()
   }, [])
 
   useEffect(() => {
@@ -185,12 +199,12 @@ export const Zuji = () => {
       console.log("网络出错，无法获取主播的在线状态：", e)
       setTips({color: "error", message: "网络出错，无法获取主播的在线状态"})
     })
-  }, [])
+  }, [infos])
 
   return (
     <DoPanel isRow header={{
       title: `有 ${rooms?.length || 0} 个主播在线`, action: <Button onClick={_ => showDialog({
-        open: true, title: "设置", content: <ZJSettings showDialog={showDialog}/>
+        open: true, title: "设置", content: <ZJSettings infos={infos} setInfos={setInfos} showDialog={showDialog}/>
       })}>设置</Button>
     }} content={
       <Fragment>
