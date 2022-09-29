@@ -206,8 +206,9 @@ const DYSTabs = (): JSX.Element => {
     }
 
     // 等待加载保存的数据完毕后，才触发 useEffect，避免 useEffect 优先时，将初始数据覆盖了已保存的数据
-    await sleep(100)
+    await sleep(500)
     setTabCurrent(dysInfo.ctid || 0)
+    showSb({open: true, message: "已跳转到上次浏览的位置", severity: "success"})
   }
 
   useEffect(() => {
