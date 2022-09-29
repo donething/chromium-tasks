@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react"
 import {Box, Pagination, Stack, Tab, Tabs} from "@mui/material"
-import {request} from "do-utils/dist/utils"
+import {request, sleep} from "do-utils/dist/utils"
 import {useSharedSnackbar} from "do-comps"
 import {date} from "do-utils/dist/text"
 
@@ -197,7 +197,6 @@ const DYSTabs = (): JSX.Element => {
   // 初始化
   const init = async () => {
     let dysInfo = await getDysInfo()
-    setTabCurrent(dysInfo.ctid || 0)
     if (dysInfo.pages && dysInfo.pages.length > 0) {
       // 以下两句，为了当新添加了 SeriesInfos 项目时，将存储的数据恢复到前面，后面则为新项目的数据
       let tmp = [...pagesList]
@@ -205,6 +204,10 @@ const DYSTabs = (): JSX.Element => {
       // 恢复数据
       setPagesList([...dysInfo.pages, ...tmp])
     }
+
+    // 等待加载保存的数据完毕后，才触发 useEffect，避免 useEffect 优先时，将初始数据覆盖了已保存的数据
+    await sleep(100)
+    setTabCurrent(dysInfo.ctid || 0)
   }
 
   useEffect(() => {
