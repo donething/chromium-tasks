@@ -1,9 +1,8 @@
 import React, {useEffect, useState} from "react"
 import {Box, Pagination, Stack, Tab, Tabs} from "@mui/material"
-import {request, sleep} from "do-utils/dist/utils"
+import {request} from "do-utils/dist/utils"
 import {useSharedSnackbar} from "do-comps"
 import {date} from "do-utils/dist/text"
-import json = Mocha.reporters.json
 
 namespace DYS {
   // 请求某个合集的响应
