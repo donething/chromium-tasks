@@ -203,12 +203,12 @@ const DYSTabs = (): JSX.Element => {
       tmp.splice(0, dysInfo.pages.length)
       // 恢复数据
       setPagesList([...dysInfo.pages, ...tmp])
+      showSb({open: true, message: "将跳转到上次浏览的位置", severity: "success"})
     }
 
     // 等待加载保存的数据完毕后，才触发 useEffect，避免 useEffect 优先时，将初始数据覆盖了已保存的数据
     await sleep(500)
     setTabCurrent(dysInfo.ctid || 0)
-    showSb({open: true, message: "已跳转到上次浏览的位置", severity: "success"})
   }
 
   useEffect(() => {
