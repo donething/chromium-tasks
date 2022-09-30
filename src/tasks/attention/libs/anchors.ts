@@ -200,18 +200,33 @@ export namespace anchor {
         let url = "https://webcast-hl.amemv.com/webcast/room/reflow/info/?app_id=1128&live_id=1&room_id=" +
           (basic.idNew || basic.id)
         let resp = await request(url)
-        let result = await resp.json()
+        let text = await resp.text()
+
+        let getNot = (id: string = "") => {
+          return new Status({
+            name: "获取的主播信息为空",
+            title: `${basic.plat} ${basic.id}`,
+            liveUrl: `https://www.douyin.com/${id}`
+          })
+        }
+
+        // 获取的内容可能为空，不能直接用 json() 解析，需要先判断
+        if (text === "") {
+          console.log(TAG, `${basic.plat} 获取主播(${basic.idNew || basic.id})的信息为空`)
+          return getNot()
+        }
+
+        // 解析数据
+        let result = JSON.parse(text)
 
         if (!result?.data?.room) {
           console.log(TAG, `${basic.plat} 不存在该主播 ${basic.idNew || basic.id}`)
-          return new Status({
-            name: "不存在主播",
-            title: `${basic.plat} ${basic.id}`,
-            liveUrl: `https://www.douyin.com/user/${result?.data?.room?.owner?.sec_uid || "未知用户"}`
-          })
+          return getNot(result?.data?.room?.owner?.sec_uid || "未知用户")
         }
+
         let name = result?.data?.room?.owner?.nickname
         let ownRoom = result?.data?.room?.owner?.own_room
+
         // 因为主播的房间号经常自动改变，不过返回的信息里有新的的房间号，所以新号码再次请求
         if (ownRoom && (basic.idNew || basic.id) !== ownRoom.room_ids_str[0]) {
           basic.idNew = result.data.room.owner.own_room.room_ids_str[0]
