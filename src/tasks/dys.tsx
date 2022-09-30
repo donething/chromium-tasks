@@ -275,17 +275,15 @@ const DYSTabs = (): JSX.Element => {
       {/* 分页 */}
       <Box sx={{flex: "0 1 auto", marginTop: 2, marginBottom: 2, display: "flex", justifyContent: "center"}}>
         <Pagination page={pagesList[tabCurrent]} count={pTotalList[tabCurrent]} size={"large"}
-                    onChange={(event: object, p: number) => {
-                      setPagesList(prev => {
-                        // 更新页数
-                        let n = [...prev]
-                        n[tabCurrent] = p
-                        // 保存页数信息
-                        setTabInfo(tabCurrent, n)
-                        return n
-                      })
-                    }}
-        />
+                    onChange={(event: object, p: number) => setPagesList(prev => {
+                      // 更新页数
+                      let n = [...prev]
+                      n[tabCurrent] = p
+                      // 保存页数信息
+                      setTabInfo(tabCurrent, n)
+                      return n
+                    })
+                    }/>
       </Box>
     </Stack>
   )
