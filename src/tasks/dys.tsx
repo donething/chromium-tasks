@@ -3,6 +3,7 @@ import {Box, Pagination, Stack, Tab, Tabs} from "@mui/material"
 import {request, sleep} from "do-utils/dist/utils"
 import {useSharedSnackbar} from "do-comps"
 import {date} from "do-utils/dist/text"
+import json = Mocha.reporters.json
 
 namespace DYS {
   // 请求某个合集的响应
@@ -70,17 +71,16 @@ type DysInfo = {
 }
 
 // 需要获取的合集的信息，一个元素用一个 Tab 展示
+// 最近添加的必须在后面，以免历史记录的信息匹配出错
 const SeriesInfos = [
   {
     // 对应当前 Tab 的索引，用于恢复网页时，恢复展示之前的 Tab
-    tid: 0,
     title: "直播回放",
     mid: "8739477",
     series_id: "405144",
     size: 100,
   },
   {
-    tid: 1,
     title: "解说比赛",
     mid: "8739477",
     series_id: "449435",
@@ -119,6 +119,7 @@ const initDataList = (n: number): [][] => {
 // 返回当前 Tab 的信息，用于恢复展示 Tab 关闭前的数据
 const getDysInfo = async (): Promise<DysInfo> => {
   let data = await chrome.storage.sync.get({dys: {}})
+  console.log("已恢复浏览信息的数据：", JSON.stringify(data.dys))
   return data.dys
 }
 
@@ -126,7 +127,7 @@ const getDysInfo = async (): Promise<DysInfo> => {
 const setTabInfo = async (ctid: number, pages: Array<number>) => {
   let data: DysInfo = {ctid: ctid, pages: pages}
   await chrome.storage.sync.set({dys: data})
-  console.log("已保存已浏览信息的数据")
+  console.log("已保存浏览信息的数据：", JSON.stringify(data))
 }
 
 // 获取DYS指定视频合集的组件
@@ -188,8 +189,6 @@ const DYSTabs = (): JSX.Element => {
       // 设置该标签内的数据（因为翻页，而不用追加）
       nArray[tabCurrent] = add
 
-      setTabInfo(tabCurrent, pagesList)
-
       return nArray
     })
   }
@@ -197,18 +196,16 @@ const DYSTabs = (): JSX.Element => {
   // 初始化
   const init = async () => {
     let dysInfo = await getDysInfo()
+
+    setTabCurrent(dysInfo.ctid || 0)
+
     if (dysInfo.pages && dysInfo.pages.length > 0) {
       // 以下两句，为了当新添加了 SeriesInfos 项目时，将存储的数据恢复到前面，后面则为新项目的数据
       let tmp = [...pagesList]
       tmp.splice(0, dysInfo.pages.length)
       // 恢复数据
       setPagesList([...dysInfo.pages, ...tmp])
-      showSb({open: true, message: "将跳转到上次浏览的位置", severity: "info"})
     }
-
-    // 等待加载保存的数据完毕后，才触发 useEffect，避免 useEffect 优先时，将初始数据覆盖了已保存的数据
-    await sleep(500)
-    setTabCurrent(dysInfo.ctid || 0)
   }
 
   useEffect(() => {
@@ -279,12 +276,16 @@ const DYSTabs = (): JSX.Element => {
       {/* 分页 */}
       <Box sx={{flex: "0 1 auto", marginTop: 2, marginBottom: 2, display: "flex", justifyContent: "center"}}>
         <Pagination page={pagesList[tabCurrent]} count={pTotalList[tabCurrent]} size={"large"}
-                    onChange={(event: object, p: number) => setPagesList(prev => {
-                      // 更新页数
-                      let n = [...prev]
-                      n[tabCurrent] = p
-                      return n
-                    })}
+                    onChange={(event: object, p: number) => {
+                      setPagesList(prev => {
+                        // 更新页数
+                        let n = [...prev]
+                        n[tabCurrent] = p
+                        // 保存页数信息
+                        setTabInfo(tabCurrent, n)
+                        return n
+                      })
+                    }}
         />
       </Box>
     </Stack>
