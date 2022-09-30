@@ -140,7 +140,7 @@ export const Zuji = () => {
   // rooms 为 undefined 表示正在获取；[] 长度为 0 表示没有关注的主播在播
   const [rooms, setRooms] = useState<Array<RoomStatus> | undefined>(undefined)
   // 网络出错、为空时的提示信息
-  const [tips, setTips] = useState<TipsType>({color: "info", message: "正在获取……"})
+  const [tips, setTips] = useState<TipsType>({color: "info", message: ""})
 
   // 显示消息
   const {showDialog} = useSharedDialog()
@@ -149,6 +149,7 @@ export const Zuji = () => {
   const getData = async () => {
     // 先重置界面的数据
     setRooms([])
+    setTips({color: "info", message: "正在获取……"})
 
     let ssid = infos.ssid
     let host = infos.host
