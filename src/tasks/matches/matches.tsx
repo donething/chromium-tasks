@@ -278,23 +278,20 @@ const MatchesComp = (): JSX.Element => {
   }, [time])
 
   // 使用滚轮事件加载更多
-  let elem = document.querySelector(".VPanel-content")
-  if (elem) {
-    elem.addEventListener("mousewheel", event => {
-      if (loadBusyRef.current) {
-        return
-      }
-      // @ts-ignore
-      if (event.deltaY > 0 && elem.scrollTop >= elem.scrollHeight - elem.offsetHeight - 200) {
-        setTime(nextRef.current)
-      }
+  document.querySelector(".VPanel-content")?.addEventListener("mousewheel", event => {
+    let elem = document.querySelector(".VPanel-content") as HTMLElement
+    if (!elem || loadBusyRef.current) {
+      return
+    }
+    let me = event as WheelEvent
+    if (me.deltaY > 0 && elem.scrollTop >= elem.scrollHeight - elem.offsetHeight - 200) {
+      setTime(nextRef.current)
+    }
 
-      // @ts-ignore
-      if (event.deltaY < 0 && elem.scrollTop <= 200) {
-        setTime(prevRef.current)
-      }
-    })
-  }
+    if (me.deltaY < 0 && elem.scrollTop <= 200) {
+      setTime(prevRef.current)
+    }
+  })
 
   // 工具栏
   let tools = (

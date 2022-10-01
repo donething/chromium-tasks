@@ -153,7 +153,6 @@ export namespace app {
       // 遍历应用列表，获取详细信息
       for (let basic of apps.list) {
         // 根据平台选择获取信息的方法
-        // @ts-ignore
         let status = await StatusUtils[basic.plat].check(basic).catch(e => {
           console.error(TAG, "获取应用信息出错：", basic, e)
         })

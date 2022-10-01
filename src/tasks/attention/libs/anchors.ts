@@ -231,7 +231,6 @@ export namespace anchor {
         if (ownRoom && (basic.idNew || basic.id) !== ownRoom.room_ids_str[0]) {
           basic.idNew = result.data.room.owner.own_room.room_ids_str[0]
           console.log(TAG, `抖音主播"${name}"的房间ID已更新为"${basic.idNew}"，将重新获取直播流`)
-          // @ts-ignore
           return await StatusUtils[basic.plat].check(basic)
         }
 
@@ -357,7 +356,6 @@ export namespace anchor {
       // 开始检测
       for (let basic of anchors) {
         // 此处同步检查每个主播的状态，所以用 await 等待，以免发送通知时重叠
-        // @ts-ignore
         let status = await StatusUtils[basic.plat].check(basic).catch(e => {
           console.log(TAG, "获取主播信息时出错：", basic, e)
         })
