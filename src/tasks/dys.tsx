@@ -131,7 +131,10 @@ const setTabInfo = async (ctid: number, pages: Array<number>) => {
 
 // 获取DYS指定视频合集的组件
 const DYSTabs = (): JSX.Element => {
-  // 当前被选择的 Tab 的索引，为 -1 表示初始不需要联网获取数据，以免多次获取
+  // 是否已完成初始化，当完成时，才开始联网加载数据
+  const [hadInit, setHadInit] = useState(false)
+
+  // 当前被选择的 Tab 的索引
   const [tabCurrent, setTabCurrent] = useState(0)
 
   // 每个标签内已获取视频的页数
@@ -210,15 +213,15 @@ const DYSTabs = (): JSX.Element => {
   useEffect(() => {
     document.title = "B站视频集"
 
-    init()
+    init().then(() => setHadInit(true))
   }, [])
 
   // 当 Tab 改变时，仅当该 Tab 内数据为空时，才获取
   useEffect(() => {
-    if (dataList[tabCurrent].length === 0) {
+    if (hadInit && dataList[tabCurrent].length === 0) {
       getData(tabCurrent)
     }
-  }, [tabCurrent])
+  }, [hadInit, tabCurrent])
 
   // 翻页
   useEffect(() => {
