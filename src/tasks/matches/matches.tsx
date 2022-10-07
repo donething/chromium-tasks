@@ -8,7 +8,7 @@ import IconToCur from "../../icons/to_current.svg"
 import {date} from "do-utils/dist/text"
 import {scrollIntoView} from "do-utils/dist/elem"
 import {request} from "do-utils/dist/utils"
-import {DoSvgIcon, DoPanel} from "do-comps/dist/main"
+import {DoSvgIcon, DoPanel, DoPanelHeader, DoPanelContent, DoPanelFooter,} from "do-comps/dist/main"
 import Avatar from "@mui/material/Avatar"
 import cheerio from "cheerio"
 import {useSharedSnackbar} from "do-comps"
@@ -333,11 +333,16 @@ const MatchesComp = (): JSX.Element => {
   )
 
   return (
-    <DoPanel
-      header={{title: "LOL 赛程", action: tools}}
-      content={<Stack>{matchesList}</Stack>} sxContent={{padding: 2}}
-      dividers={true}
-      sx={{width: 450}}/>
+    <DoPanel sx={{width: 450}}>
+      <DoPanelHeader>
+        <span>LOL 赛程</span>
+        {tools}
+      </DoPanelHeader>
+
+      <DoPanelContent>
+        <Stack>{matchesList}</Stack>
+      </DoPanelContent>
+    </DoPanel>
   )
 }
 

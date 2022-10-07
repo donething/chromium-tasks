@@ -1,9 +1,17 @@
 import type {RoomStatus} from "./types"
-import React, {Fragment, useEffect, useState} from "react"
+import React, {useEffect, useState} from "react"
 import {getRoomsStatus} from "./task"
 import Button from "@mui/material/Button"
 import Stack from "@mui/material/Stack"
-import {DoDialogProps, useSharedDialog, useSharedSnackbar, DoPanel, DoText} from "do-comps"
+import {
+  DoDialogProps,
+  useSharedDialog,
+  useSharedSnackbar,
+  DoPanel,
+  DoPanelHeader,
+  DoPanelContent,
+  DoText
+} from "do-comps"
 import TextField from "@mui/material/TextField"
 import Card from "@mui/material/Card"
 import {AlertColor, Avatar, CardHeader, IconButton} from "@mui/material"
@@ -203,17 +211,21 @@ export const Zuji = () => {
   }, [infos])
 
   return (
-    <DoPanel isRow header={{
-      title: `有 ${rooms?.length || 0} 个主播在线`, action: <Button onClick={_ => showDialog({
-        open: true, title: "设置", content: <ZJSettings infos={infos} setInfos={setInfos} showDialog={showDialog}/>
-      })}>设置</Button>
-    }} content={
-      <Fragment>
+    <DoPanel sx={{padding: 2}}>
+      <DoPanelHeader>
+        <Typography>{`有 ${rooms?.length || 0} 个主播在线`}</Typography>
+
+        <Button onClick={_ => showDialog({
+          open: true, title: "设置", content: <ZJSettings infos={infos} setInfos={setInfos} showDialog={showDialog}/>
+        })}>设置</Button>
+      </DoPanelHeader>
+
+      <DoPanelContent>
         {
           rooms === undefined || rooms.length === 0 ? <Alert severity={tips.color}>{tips.message}</Alert> :
             rooms.map(room => <AnchorItem key={room.name} room={room}/>)
         }
-      </Fragment>} sxContent={{padding: 2}}
-    />
+      </DoPanelContent>
+    </DoPanel>
   )
 }
