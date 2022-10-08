@@ -10,7 +10,8 @@ import {
   DoPanel,
   DoPanelHeader,
   DoPanelContent,
-  DoText
+  DoText,
+  DoTextTitle
 } from "do-comps"
 import TextField from "@mui/material/TextField"
 import Card from "@mui/material/Card"
@@ -211,16 +212,18 @@ export const Zuji = () => {
   }, [infos])
 
   return (
-    <DoPanel sx={{padding: 2}}>
+    <DoPanel divider={<Divider/>}>
       <DoPanelHeader>
-        <Typography>{`有 ${rooms?.length || 0} 个主播在线`}</Typography>
+        <DoTextTitle>{`有 ${rooms?.length || 0} 个主播在线`}</DoTextTitle>
 
-        <Button onClick={_ => showDialog({
-          open: true, title: "设置", content: <ZJSettings infos={infos} setInfos={setInfos} showDialog={showDialog}/>
+        <Button onClick={() => showDialog({
+          open: true,
+          title: "设置",
+          content: <ZJSettings infos={infos} setInfos={setInfos} showDialog={showDialog}/>
         })}>设置</Button>
       </DoPanelHeader>
 
-      <DoPanelContent>
+      <DoPanelContent flexDirection={"row"} spacing={2} padding={2}>
         {
           rooms === undefined || rooms.length === 0 ? <Alert severity={tips.color}>{tips.message}</Alert> :
             rooms.map(room => <AnchorItem key={room.name} room={room}/>)
