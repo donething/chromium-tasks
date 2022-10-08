@@ -223,7 +223,7 @@ export const Zuji = () => {
         })}>设置</Button>
       </DoPanelHeader>
 
-      <DoPanelContent flexDirection={"row"} spacing={2} padding={2}>
+      <DoPanelContent flexDirection={"row"} gap={2} padding={2}>
         {
           rooms === undefined || rooms.length === 0 ? <Alert severity={tips.color}>{tips.message}</Alert> :
             rooms.map(room => <AnchorItem key={room.name} room={room}/>)
