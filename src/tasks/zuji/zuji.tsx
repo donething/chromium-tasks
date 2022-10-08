@@ -144,21 +144,28 @@ const AnchorItem = (props: { room: RoomStatus }) => {
 
 // 面板
 export const Zuji = () => {
+  // 是否已完成初始化，当完成时，才开始联网加载数据
+  const [hadInit, setHadInit] = useState(false)
+
   // 设置的数据
   const [infos, setInfos] = useState(new Infos())
   // rooms 为 undefined 表示正在获取；[] 长度为 0 表示没有关注的主播在播
   const [rooms, setRooms] = useState<Array<RoomStatus> | undefined>(undefined)
   // 网络出错、为空时的提示信息
-  const [tips, setTips] = useState<TipsType>({color: "info", message: "初始化…"})
+  const [tips, setTips] = useState<TipsType>({color: "info", message: "正在初始化…"})
 
   // 显示消息
   const {showDialog} = useSharedDialog()
 
   // 获取在线列表
   const getData = async () => {
+    if (!hadInit) {
+      return
+    }
+
     // 先重置界面的数据
     setRooms([])
-    setTips({color: "info", message: "正在获取……"})
+    setTips({color: "info", message: "正在获取…"})
 
     let ssid = infos.ssid
     let host = infos.host
@@ -200,7 +207,7 @@ export const Zuji = () => {
   useEffect(() => {
     document.title = `足迹直播 - ${chrome.runtime.getManifest().name}`
 
-    init()
+    init().then(() => setHadInit(true))
   }, [])
 
   useEffect(() => {
@@ -209,7 +216,7 @@ export const Zuji = () => {
       console.log("网络出错，无法获取主播的在线状态：", e)
       setTips({color: "error", message: "网络出错，无法获取主播的在线状态"})
     })
-  }, [infos])
+  }, [hadInit])
 
   return (
     <DoPanel divider={<Divider/>}>
