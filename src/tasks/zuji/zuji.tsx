@@ -95,7 +95,7 @@ const AnchorItem = (props: { room: RoomStatus }) => {
       <CardHeader avatar={<Avatar sx={{width: 60, height: 60}} src={props.room.logourl}/>}
                   title={props.room.nickname}
                   titleTypographyProps={{fontSize: "large", noWrap: true}}
-                  subheader={<DoText title={props.room.title} lines={2}>{props.room.title}</DoText>}
+                  subheader={<DoText title={props.room.title} lines={1}>{props.room.title}</DoText>}
       />
 
       <Divider/>
