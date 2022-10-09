@@ -8,7 +8,7 @@ import {
 } from "do-comps"
 import React, {useEffect, useState} from "react"
 import Button from "@mui/material/Button"
-import {insertOrdered} from "do-utils/dist/utils"
+import {insertOrdered} from "do-utils/dist/elem"
 import type {AItemType} from "./attentions"
 import {app} from "./libs/apps"
 import type {SxProps, Theme} from "@mui/material"

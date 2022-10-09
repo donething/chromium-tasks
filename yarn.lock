@@ -3144,10 +3144,10 @@ do-utils@^1.0.45:
   resolved "https://registry.yarnpkg.com/do-utils/-/do-utils-1.0.45.tgz#959ab1a72e38241ed364c9e5f5557edd13f60e15"
   integrity sha512-KI5W76J1jnNxA+7HxbVR1NdYeGSiXo7tR/JBQjEamteE+NSgc5txiwpwf6VLBql0TND4GBev3RNND11fPxVWvQ==
 
-do-utils@^1.0.48:
-  version "1.0.48"
-  resolved "https://registry.yarnpkg.com/do-utils/-/do-utils-1.0.48.tgz#b94a63bc98ffe06dd892d20cdae6ed52ffc53735"
-  integrity sha512-Ogt+zIJuFpz5rJjUrmlfLJ2p7Rrr8J7I5Z4PSIWKpmNrbvwCFZ1RU0rHQovqiBFoCZQ87bfxTQmy+/Aednt95w==
+do-utils@^1.0.49:
+  version "1.0.49"
+  resolved "https://registry.yarnpkg.com/do-utils/-/do-utils-1.0.49.tgz#ae4fdfdd64ca08a1ce055412a66d61310c1945ba"
+  integrity sha512-f6XnICrccAUX6JXOLRQD50BhD4jMhe00P3eTv/DjTn8RIEv4rqm8q4L+IgdW3XjUMji6tQ8QLCqIWErPxQQwsg==
 
 dom-accessibility-api@^0.5.6:
   version "0.5.13"

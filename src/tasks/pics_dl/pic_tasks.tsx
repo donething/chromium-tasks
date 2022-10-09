@@ -18,7 +18,7 @@ import Card from "@mui/material/Card"
 import Stack from "@mui/material/Stack"
 import Button from "@mui/material/Button"
 import HighlightOffOutlinedIcon from '@mui/icons-material/HighlightOffOutlined'
-import {insertOrdered} from "do-utils/dist/utils"
+import {insertOrdered} from "do-utils/dist/elem"
 import RotateLeftOutlinedIcon from '@mui/icons-material/RotateLeftOutlined'
 import CloudDownloadOutlinedIcon from '@mui/icons-material/CloudDownloadOutlined'
 import CardContent from "@mui/material/CardContent"
