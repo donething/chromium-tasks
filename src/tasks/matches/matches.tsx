@@ -8,7 +8,7 @@ import IconToCur from "../../icons/to_current.svg"
 import {date} from "do-utils/dist/text"
 import {scrollIntoView} from "do-utils/dist/elem"
 import {request} from "do-utils/dist/utils"
-import {DoSvgIcon, DoPanel, DoPanelHeader, DoPanelContent} from "do-comps/dist/main"
+import {DoSvgIcon, DoPanel, DoPanelHeader, DoPanelContent, DoTextTitle} from "do-comps/dist/main"
 import Avatar from "@mui/material/Avatar"
 import cheerio from "cheerio"
 import {useSharedSnackbar} from "do-comps"
@@ -53,8 +53,9 @@ const DayItem = (props: {
 }): JSX.Element => {
   // 一场比赛的布局
   const subItems = props.matches.map(game => (
-    <Stack key={game.starttime} direction={"row"} alignItems={"center"} spacing={2} sx={{marginBottom: 2}}
-           bgcolor={game.live ? alpha("rgb(82, 196, 26)", 0.2) : ""}>
+    <Stack key={game.starttime} direction={"row"} alignItems={"center"} spacing={2} component={"ul"}
+           bgcolor={game.live ? alpha("rgb(82, 196, 26)", 0.2) : ""}
+           padding={"8px 0 8px 16px"} overflow={"y"}>
       {/* 比赛时间 */}
       <Typography>{game.starttime}</Typography>
 
@@ -74,7 +75,7 @@ const DayItem = (props: {
         </Stack>
 
         {/* 客队 */}
-        <Stack direction={"row"} alignItems={"center"} sx={{marginTop: 1}}>
+        <Stack direction={"row"} alignItems={"center"} marginTop={1}>
           <Avatar sx={sxTeamAavatar} src={game.twoicon}/>
           <Typography title={game.twoseedname}
                       sx={{
@@ -132,7 +133,7 @@ const DayItem = (props: {
       </Stack>
 
       {/* 比赛名 */}
-      <Typography title={game.ename} sx={{...sxOneLine, color: "#888"}} pl={2}>
+      <Typography title={game.ename} sx={{...sxOneLine, color: "#888"}} pl={2} width={"150px"}>
         {game.ename}
       </Typography>
     </Stack>
@@ -140,17 +141,18 @@ const DayItem = (props: {
 
   // 一日内的所有比赛列表
   return (
-    <Box component={"li"}
+    <Box component={"li"} mb={3}
          id={props.isMarked ? "matches-recent" : ""}
-         mb={1}
          bgcolor={props.isMarked ? alpha("rgb(82, 196, 26)", 0.1) : "inherit"}>
       {/* 日期 */}
-      <Typography mb={1} color={"#888"} fontSize={"14px"} fontWeight={"bold"}>{props.dateBlock}</Typography>
+      <Typography color={"#555"} fontWeight={"600"} paddingLeft={2}>
+        {props.dateBlock}
+      </Typography>
 
-      {/* 改日所有赛程 */}
-      <Box component={"ul"} mb={1}>
+      {/* 该日所有赛程 */}
+      <Stack component={"ul"} divider={<Divider/>}>
         {subItems}
-      </Box>
+      </Stack>
       <Divider component={"li"}/>
     </Box>
   )
@@ -251,7 +253,7 @@ const MatchesComp = (): JSX.Element => {
           setTime(payload.data.prevtime)
           return
         } else {
-          showSb({open: true, severity: "info", message: "没有更多的赛程信息了"})
+          showSb({open: true, severity: "info", message: "没有更多的赛程信息了", autoHideDuration: 1000})
           return
         }
       }
@@ -333,14 +335,14 @@ const MatchesComp = (): JSX.Element => {
   )
 
   return (
-    <DoPanel sx={{width: 450}}>
+    <DoPanel width={"380px"} divider={<Divider/>}>
       <DoPanelHeader>
-        <span>LOL 赛程</span>
+        <DoTextTitle>LOL 赛程</DoTextTitle>
         {tools}
       </DoPanelHeader>
 
-      <DoPanelContent>
-        <Stack>{matchesList}</Stack>
+      <DoPanelContent className={"VPanel-content"} component={"ul"} sx={{overflowX: "hidden"}}>
+        {matchesList}
       </DoPanelContent>
     </DoPanel>
   )
