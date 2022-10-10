@@ -38,24 +38,31 @@ const sxTeamName: SxProps<Theme> = {
   width: "40px",
   marginLeft: "5px"
 }
-const sxScoreIcon: SxProps<Theme> = {
-  width: 6,
-  height: 6,
-  borderRadius: "50%"
+
+// 根据比赛的输、赢、未知，返回图像
+const ScoreIcon = (props: { score: number }) => {
+  // 根据输、赢、未知，填充的颜色
+  let color = "#FFF"
+
+  // -1：未知；0：输；1：赢
+  if (props.score === 0) {
+    color = "#d0d0d0"
+  } else if (props.score === 1) {
+    color = "#f2ae44"
+  }
+
+  return (
+    <Box bgcolor={color} border={`1px solid ${color}`} width={"6px"} height={"6px"} borderRadius={"50%"}/>
+  )
 }
 
-// 当日的比赛整体为一个列表项，里面的比赛场次又构成一个列表
-const DayItem = (props: {
-  date: string,
-  dateBlock: string,
-  matches: Array<Game>,
-  isMarked: boolean
-}): JSX.Element => {
-  // 一场比赛的布局
-  const subItems = props.matches.map(game => (
-    <Stack key={game.starttime} direction={"row"} alignItems={"center"} spacing={2} component={"ul"}
+// 单项比赛的布局
+const GameItem = (props: { game: Game }) => {
+  let game = props.game
+  return (
+    <Stack key={game.starttime} direction={"row"} alignItems={"center"} spacing={2} component={"li"}
            bgcolor={game.live ? alpha("rgb(82, 196, 26)", 0.2) : ""}
-           padding={"8px 0 8px 16px"} overflow={"y"}>
+           padding={"8px 8px 8px 16px"}>
       {/* 比赛时间 */}
       <Typography>{game.starttime}</Typography>
 
@@ -97,15 +104,7 @@ const DayItem = (props: {
               <Stack direction={"row"} alignItems={"center"}>
                 <Typography width={1} mr={1}>{game.onewin}</Typography>
                 <Stack direction={"row"} spacing={"3px"}>
-                  {
-                    game.oneScore.map(n =>
-                      <Box sx={{
-                        ...sxScoreIcon,
-                        background: n === 1 ? '#f2ae44' : '#d0d0d0',
-                        border: n === 1 ? '1px solid #f2ae44' : '1px solid #d0d0d0'
-                      }}/>
-                    )
-                  }
+                  {game.oneScore.map(n => <ScoreIcon score={n}/>)}
                 </Stack>
               </Stack>
 
@@ -113,37 +112,35 @@ const DayItem = (props: {
               <Stack direction={"row"} alignItems={"center"} sx={{marginTop: 1}}>
                 <Typography width={1} mr={1}>{game.twowin}</Typography>
                 <Stack direction={"row"} spacing={"3px"}>
-                  {
-                    game.twoScore.map((n) =>
-                      <Box sx={{
-                        ...sxScoreIcon,
-                        background: n === 1 ? '#f2ae44' : '#d0d0d0',
-                        border: n === 1 ? '1px solid #f2ae44' : '1px solid #d0d0d0'
-                      }}/>
-                    )
-                  }
+                  {game.twoScore.map((n) => <ScoreIcon score={n}/>)}
                 </Stack>
               </Stack>
             </Stack>
           ) : (
             // 比赛还未开始时，显示局数
-            <Typography>BO {game.bonum}</Typography>
+            <Typography noWrap={true} fontSize={"medium"}>BO {game.bonum}</Typography>
           )
         }
       </Stack>
 
       {/* 比赛名 */}
-      <Typography title={game.ename} sx={{...sxOneLine, color: "#888"}} pl={2} width={"150px"}>
+      <Typography title={game.ename} sx={{...sxOneLine, color: "#888"}} pl={2}>
         {game.ename}
       </Typography>
     </Stack>
-  ))
+  )
+}
+
+// 当日的比赛整体为一个列表项，里面的比赛场次又构成一个列表
+const DayItem = (props: { date: string, dateBlock: string, matches: Game[], isMarked: boolean }) => {
+  // 该日的比赛
+  const games = props.matches.map(game => <GameItem game={game}/>)
 
   // 一日内的所有比赛列表
   return (
-    <Box component={"li"} mb={3}
-         id={props.isMarked ? "matches-recent" : ""}
-         bgcolor={props.isMarked ? alpha("rgb(82, 196, 26)", 0.1) : "inherit"}>
+    <Stack component={"li"} mb={3} width={"100%"}
+           id={props.isMarked ? "matches-recent" : ""}
+           bgcolor={props.isMarked ? alpha("rgb(82, 196, 26)", 0.1) : "inherit"}>
       {/* 日期 */}
       <Typography color={"#555"} fontWeight={"600"} paddingLeft={2}>
         {props.dateBlock}
@@ -151,10 +148,10 @@ const DayItem = (props: {
 
       {/* 该日所有赛程 */}
       <Stack component={"ul"} divider={<Divider/>}>
-        {subItems}
+        {games}
       </Stack>
       <Divider component={"li"}/>
-    </Box>
+    </Stack>
   )
 }
 
@@ -335,7 +332,7 @@ const MatchesComp = (): JSX.Element => {
   )
 
   return (
-    <DoPanel width={"380px"} divider={<Divider/>}>
+    <DoPanel width={"400px"} divider={<Divider/>}>
       <DoPanelHeader>
         <DoTextTitle>LOL 赛程</DoTextTitle>
         {tools}
