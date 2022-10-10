@@ -62,6 +62,8 @@ const Tasks = () => {
         <Divider/>
 
         <CardActions>
+          <Button href="https://club.ccmnn.com/" target="_blank">访问</Button>
+
           <Button onClick={async () => {
             showSb({open: true, severity: "success", message: "已重启 Ccmnn 任务，请打开 Devtools，以保留后台"})
             chrome.alarms.clear(CCmnn.TAG_EN)
@@ -72,8 +74,6 @@ const Tasks = () => {
             chrome.alarms.create(CCmnn.TAG_EN, {delayInMinutes: 1})
           }}>重启任务
           </Button>
-
-          <Button href="https://club.ccmnn.com/" target="_blank">访问</Button>
         </CardActions>
       </Card>
 
