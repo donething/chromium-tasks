@@ -15,7 +15,7 @@ const initWXPush = async (): Promise<boolean> => {
       notify({
         title: "无法推送应用已免费的消息",
         message: "微信推送的 token 为空",
-        iconUrl: "/icons/extension_32.png"
+        iconUrl: "/icons/extension_128.png"
       })
       return false
     }

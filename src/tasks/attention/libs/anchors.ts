@@ -381,7 +381,7 @@ export namespace anchor {
               type: "basic",
               title: "关注的主播已开播",
               message: `"${status.name}"(${basic.id})`,
-              iconUrl: "/icons/extension_32.png",
+              iconUrl: "/icons/extension_128.png",
               buttons: [{title: "打开"}, {title: "取消"}]
             }
             let liveUrl = status.liveUrl
