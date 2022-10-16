@@ -42,17 +42,20 @@ const sxTeamName: SxProps<Theme> = {
 // 根据比赛的输、赢、未知，返回图像
 const ScoreIcon = (props: { score: number }) => {
   // 根据输、赢、未知，填充的颜色
-  let color = "#FFF"
+  let bg = "#FFF"
+  let borderColor = "#AAA"
 
   // -1：未知；0：输；1：赢
   if (props.score === 0) {
-    color = "#d0d0d0"
+    bg = "#d0d0d0"
+    borderColor = "#d0d0d0"
   } else if (props.score === 1) {
-    color = "#f2ae44"
+    bg = "#f2ae44"
+    borderColor = "#f2ae44"
   }
 
   return (
-    <Box bgcolor={color} border={`1px solid ${color}`} width={"6px"} height={"6px"} borderRadius={"50%"}/>
+    <Box bgcolor={bg} border={`1px solid ${borderColor}`} width={"6px"} height={"6px"} borderRadius={"50%"}/>
   )
 }
 
