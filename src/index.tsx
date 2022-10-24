@@ -1,5 +1,5 @@
 import React from 'react'
-import ReactDOM from 'react-dom'
+import {createRoot} from 'react-dom/client'
 import Popup from "./pages/Popup"
 import Options from "./pages/Options"
 import {HashRouter, Route, Routes} from "react-router-dom"
@@ -14,7 +14,10 @@ import MatchesComp from "./tasks/matches/matches"
 import './index.css'
 import DYSTabs from "./tasks/dys"
 
-ReactDOM.render(
+const container = document.getElementById('root')
+const root = createRoot(container!)
+
+root.render(
   <React.StrictMode>
     <ThemeProvider theme={DoTheme}>
       <DoSnackbar/>
@@ -34,8 +37,7 @@ ReactDOM.render(
         </Routes>
       </HashRouter>
     </ThemeProvider>
-  </React.StrictMode>,
-  document.getElementById('root'),
+  </React.StrictMode>
 )
 
 // Hot Module Replacement (HMR) - Remove this snippet to remove HMR.

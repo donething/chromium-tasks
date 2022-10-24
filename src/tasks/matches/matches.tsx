@@ -7,7 +7,7 @@ import IconLCK from "../../icons/lck.svg"
 import IconToCur from "../../icons/to_current.svg"
 import {date} from "do-utils/dist/text"
 import {scrollIntoView} from "do-utils/dist/elem"
-import {request} from "do-utils/dist/utils"
+import {request, sleep} from "do-utils/dist/utils"
 import {DoSvgIcon, DoPanel, DoPanelHeader, DoPanelContent, DoTextTitle} from "do-comps/dist/main"
 import Avatar from "@mui/material/Avatar"
 import cheerio from "cheerio"
@@ -243,6 +243,7 @@ const MatchesComp = (): JSX.Element => {
       } else {
         setMatches([...matchesTmp])
         // 首次获取赛程时，自动滚动到当天的赛程（因为渲染问题，需要延迟一会儿）
+        await sleep(100)
         scrollIntoView("#matches-recent")
       }
 
@@ -270,17 +271,8 @@ const MatchesComp = (): JSX.Element => {
     })
   }
 
-  useEffect(() => {
-    document.title = `赛程 - ${chrome.runtime.getManifest().name}`
-
-    loadBusyRef.current = true
-
-    // 请求数据、更新界面
-    init()
-  }, [time])
-
-  // 使用滚轮事件加载更多
-  document.querySelector(".VPanel-content")?.addEventListener("mousewheel", event => {
+  // 加载更多的事件
+  const onWheel = (event: Event) => {
     let elem = document.querySelector(".VPanel-content") as HTMLElement
     if (!elem || loadBusyRef.current) {
       return
@@ -293,7 +285,23 @@ const MatchesComp = (): JSX.Element => {
     if (me.deltaY < 0 && elem.scrollTop <= 200) {
       setTime(prevRef.current)
     }
-  })
+  }
+
+  useEffect(() => {
+    document.title = `赛程 - ${chrome.runtime.getManifest().name}`
+
+    loadBusyRef.current = true
+
+    // 请求数据、更新界面
+    init()
+  }, [time])
+
+  useEffect(() => {
+    // 使用滚轮事件加载更多
+    let content = document.querySelector(".VPanel-content")
+    content?.addEventListener("mousewheel", onWheel)
+    return () => content?.removeEventListener("mousewheel", onWheel)
+  }, [])
 
   // 工具栏
   let tools = (
@@ -341,7 +349,7 @@ const MatchesComp = (): JSX.Element => {
         {tools}
       </DoPanelHeader>
 
-      <DoPanelContent className={"VPanel-content"} component={"ul"} sx={{overflowX: "hidden"}}>
+      <DoPanelContent className={"VPanel-content"} component={"ul"}>
         {matchesList}
       </DoPanelContent>
     </DoPanel>
