@@ -53,9 +53,8 @@ const getAppInfo = async (basic: app.Basic,
     isMarked: status.price === 0,
     isNewAdded: isNewAdded,
     primary: <Stack direction={"row"} justifyContent={"space-between"}>
-      <Button color={"inherit"} href={status.viewURL || ""} target="_blank" sx={{padding: 0, margin: 0, minWidth: 0}}>
-        <Typography>{status.name}</Typography>
-      </Button>
+      <Button color={"inherit"} href={status.viewURL || ""} target="_blank"
+              sx={{padding: 0, margin: 0, minWidth: 0}}>{status.name}</Button>
       <Typography sx={{color: "#888"}}>{status.formattedPrice}</Typography>
     </Stack>,
     secondary: <p className={"overflow-hide-line-one"} title={status.description}>{status.description}</p>,

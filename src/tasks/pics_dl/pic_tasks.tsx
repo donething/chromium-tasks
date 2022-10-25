@@ -62,9 +62,7 @@ const getTaskInfo = async (task: ptask.Task,
     isMarked: false,
     isNewAdded: isNewAdded,
     primary: <Button color={"inherit"} href={sites[task.plat].getURL(task)} target="_blank"
-                     sx={{padding: 0, margin: 0, minWidth: 0}}>
-      <Typography>{info.name}</Typography>
-    </Button>,
+                     sx={{padding: 0, margin: 0, minWidth: 0}}>{info.name}</Button>,
     secondary: <p className={"overflow-hide-line-one"} title={info.description}>{info.description}</p>,
     extra: <Stack>
       <IconButton title={"删除"} onClick={_ => handleDel(task, props, showSb, setInfos)}>
