@@ -1,8 +1,5 @@
 import cheerio from "cheerio"
-import {notify} from "do-utils/dist/elem"
-import {sleep} from "do-utils/dist/utils"
-import {request} from "do-utils/dist/utils"
-import {random} from "do-utils/dist/text"
+import {notify, sleep, request, random} from "do-utils"
 
 // 存储到 chromium storage sync 的数据：tasks.hdsay
 export declare interface HdsaySets {

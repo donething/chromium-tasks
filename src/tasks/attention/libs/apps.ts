@@ -1,10 +1,8 @@
 // 应用的工具类
-import {request} from "do-utils/dist/utils"
+import {request, WXQiYe, notify} from "do-utils"
 import IconAppstore from "../../../icons/appstore.svg"
 import IconPlaystore from "../../../icons/playstore.svg"
-import {WXQiYe} from "do-utils/dist/wxpush/qiye"
 import {pushCardMsg} from "../../../comm/push"
-import {notify} from "do-utils/dist/elem"
 import type {AItemType} from "../attentions"
 
 export namespace app {

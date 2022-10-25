@@ -1,8 +1,7 @@
 import React, {useEffect, useState} from "react"
 import {Box, Pagination, Stack, Tab, Tabs} from "@mui/material"
-import {request} from "do-utils/dist/utils"
+import {request, date} from "do-utils"
 import {useSharedSnackbar} from "do-comps"
-import {date} from "do-utils/dist/text"
 
 namespace DYS {
   // 请求某个合集的响应

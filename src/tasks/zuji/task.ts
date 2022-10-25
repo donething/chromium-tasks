@@ -1,4 +1,4 @@
-import {request} from "do-utils/dist/utils"
+import {request} from "do-utils"
 import type {FavOnlineResp, RoomStatus} from "./types"
 import {JResult} from "../../comm/entities"
 

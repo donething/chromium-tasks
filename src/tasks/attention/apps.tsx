@@ -8,7 +8,7 @@ import {
 } from "do-comps"
 import React, {useEffect, useState} from "react"
 import Button from "@mui/material/Button"
-import {insertOrdered} from "do-utils/dist/elem"
+import {insertOrdered} from "do-utils"
 import type {AItemType} from "./attentions"
 import {app} from "./libs/apps"
 import type {SxProps, Theme} from "@mui/material"
@@ -60,8 +60,8 @@ const getAppInfo = async (basic: app.Basic,
     </Stack>,
     secondary: <p className={"overflow-hide-line-one"} title={status.description}>{status.description}</p>,
     extra: <Stack>
-      <IconButton aria-label="删除" onClick={_ => handleDel(basic, props, showSb, setInfos)}>
-        <HighlightOffOutlinedIcon sx={{width: 28, height: 28}}/>
+      <IconButton title={"删除"} onClick={_ => handleDel(basic, props, showSb, setInfos)}>
+        <HighlightOffOutlinedIcon opacity={0.3}/>
       </IconButton>
     </Stack>
   }
