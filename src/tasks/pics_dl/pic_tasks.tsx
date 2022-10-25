@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from "react"
-import {request} from "do-utils/dist/utils"
+import {request, sha256} from "do-utils"
 import {clearProcess, sites, startDLPics, startRetry} from "./task"
-import {sha256} from "do-utils/dist/text"
 import CardHeader from "@mui/material/CardHeader"
 import IconButton from "@mui/material/IconButton"
 import Switch from "@mui/material/Switch"
@@ -17,9 +16,9 @@ import {
 import Card from "@mui/material/Card"
 import Stack from "@mui/material/Stack"
 import Button from "@mui/material/Button"
-import HighlightOffOutlinedIcon from '@mui/icons-material/HighlightOffOutlined'
-import {insertOrdered} from "do-utils/dist/elem"
-import RotateLeftOutlinedIcon from '@mui/icons-material/RotateLeftOutlined'
+import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined'
+import {insertOrdered} from "do-utils"
+import FormatColorResetOutlinedIcon from '@mui/icons-material/FormatColorResetOutlined'
 import CloudDownloadOutlinedIcon from '@mui/icons-material/CloudDownloadOutlined'
 import CardContent from "@mui/material/CardContent"
 import CardActions from "@mui/material/CardActions"
@@ -70,7 +69,7 @@ const getTaskInfo = async (task: ptask.Task,
     secondary: <p className={"overflow-hide-line-one"} title={info.description}>{info.description}</p>,
     extra: <Stack>
       <IconButton aria-label="删除" onClick={_ => handleDel(task, props, showSb, setInfos)}>
-        <HighlightOffOutlinedIcon sx={{width: 28, height: 28}}/>
+        <CloseOutlinedIcon opacity={0.3}/>
       </IconButton>
     </Stack>
   }
@@ -289,10 +288,10 @@ const PicTasksComp = (): JSX.Element => {
 
   return (
     <Stack direction={"row"} spacing={2}>
-      <DoListAdd sx={{width: 450}} list={infos} title={"图集下载"} inputProps={inputProps} slot={
+      <DoListAdd sx={{width: 400}} list={infos} title={"图集下载"} inputProps={inputProps} slot={
         <Stack direction={"row"}>
           <IconButton title="删除进度" onClick={() => clearProcess(showSb)}>
-            <RotateLeftOutlinedIcon/>
+            <FormatColorResetOutlinedIcon/>
           </IconButton>
 
           <IconButton title="下载图集" disabled={working} onClick={() => startDLPics(setWorking, showSb)}>
@@ -313,7 +312,7 @@ const PicTasksComp = (): JSX.Element => {
         </Stack>}
       />
 
-      <Remote sx={{width: 410}}/>
+      <Remote sx={{width: 400}}/>
     </Stack>
   )
 }
