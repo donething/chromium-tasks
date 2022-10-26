@@ -15,7 +15,6 @@ import type {SxProps, Theme} from "@mui/material"
 import {IconButton, Switch} from "@mui/material"
 import Stack from "@mui/material/Stack"
 import HighlightOffOutlinedIcon from '@mui/icons-material/HighlightOffOutlined'
-import Typography from "@mui/material/Typography"
 
 // 排序规则
 const sortRules: Function[] = [anchor.Sorts.isMarked]
@@ -52,7 +51,7 @@ const getAnchorInfo = async (basic: anchor.Basic,
 
   let props: DoLItemProps = {
     id: `${basic.plat}_${basic.id}`,
-    avatar: status.avatar,
+    avatar: status.avatar || "",
     divider: true,
     isMarked: status.online === 1,
     isNewAdded: isNewAdded,

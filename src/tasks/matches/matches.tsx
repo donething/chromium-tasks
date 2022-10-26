@@ -2,18 +2,18 @@ import React, {useEffect, useRef, useState} from "react"
 import IconHuya from "../../icons/huya.svg"
 import IconDouyu from "../../icons/douyu.svg"
 import IconBili from "../../icons/bili.svg"
-import IconDYS from "../../icons/bili.svg"
+import IconDYS from "../../icons/dys.svg"
 import IconLCK from "../../icons/lck.svg"
 import IconToCur from "../../icons/to_current.svg"
 import {date, scrollIntoView, request, sleep} from "do-utils"
-import {DoSvgIcon, DoPanel, DoPanelHeader, DoPanelContent, DoTextTitle} from "do-comps/dist/main"
+import {DoPanel, DoPanelHeader, DoPanelContent, DoTextTitle} from "do-comps/dist/main"
 import Avatar from "@mui/material/Avatar"
 import cheerio from "cheerio"
 import {useSharedSnackbar} from "do-comps"
 import Stack from "@mui/material/Stack"
 import Box from "@mui/material/Box"
 import IconButton from "@mui/material/IconButton"
-import {alpha, SxProps, Theme} from "@mui/material"
+import {alpha, SvgIcon, SxProps, Theme} from "@mui/material"
 import Typography from "@mui/material/Typography"
 import type {Game, Matches, ScheduleList} from "./types"
 import Divider from "@mui/material/Divider"
@@ -305,27 +305,27 @@ const MatchesComp = (): JSX.Element => {
   let tools = (
     <Stack direction={"row"} alignItems={"center"}>
       <IconButton title="LPL 虎牙" href={"https://www.huya.com/lpl"} target={"_blank"}>
-        <DoSvgIcon svg={IconHuya}/>
+        <SvgIcon component={IconHuya} viewBox={"0 0 1024 1024"}/>
       </IconButton>
 
       <IconButton title="LPL 斗鱼" href={"https://www.douyu.com/lpl"} target={"_blank"}>
-        <DoSvgIcon svg={IconDouyu}/>
+        <SvgIcon component={IconDouyu} viewBox={"0 0 1024 1024"}/>
       </IconButton>
 
       <IconButton title="LPL 哔哩哔哩" href={"https://live.bilibili.com/6"} target={"_blank"}>
-        <DoSvgIcon svg={IconBili}/>
+        <SvgIcon component={IconBili} viewBox={"0 0 1024 1024"}/>
       </IconButton>
 
       <IconButton title="LPL 德云色" href={"https://live.bilibili.com/7777"} target={"_blank"}>
-        <DoSvgIcon svg={IconDYS}/>
+        <SvgIcon component={IconDYS} viewBox={"0 0 800 800"}/>
       </IconButton>
 
       <IconButton title="LCK" href={"https://www.huya.com/lck"} target={"_blank"}>
-        <DoSvgIcon svg={IconLCK} viewBox={"0 0 775 550"}/>
+        <SvgIcon component={IconLCK} viewBox={"0 0 775 550"}/>
       </IconButton>
 
       <IconButton title="跳转到最近的赛程" onClick={_ => scrollIntoView('#matches-recent')}>
-        <DoSvgIcon svg={IconToCur}/>
+        <SvgIcon component={IconToCur} viewBox={"0 0 1024 1024"}/>
       </IconButton>
     </Stack>
   )

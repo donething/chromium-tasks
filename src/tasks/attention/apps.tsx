@@ -45,10 +45,9 @@ const getAppInfo = async (basic: app.Basic,
                           showSb: (ps: DoSnackbarProps) => void,
                           isNewAdded?: boolean): Promise<DoLItemProps> => {
   const status: app.Status = await app.StatusUtils[basic.plat].check(basic)
-
   let props: DoLItemProps = {
     id: `${basic.plat}_${basic.area}_${basic.id}`,
-    avatar: status.icon,
+    avatar: status.icon || "",
     divider: true,
     isMarked: status.price === 0,
     isNewAdded: isNewAdded,

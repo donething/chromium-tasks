@@ -52,7 +52,7 @@ export namespace anchor {
     // 直播间的标题
     title?: string
 
-    constructor({avatar = "", liveUrl = "", name = "", online = 0, title = ""}: Status) {
+    constructor({avatar, liveUrl, name, online, title}: Status) {
       this.avatar = avatar
       this.liveUrl = liveUrl
       this.name = name
