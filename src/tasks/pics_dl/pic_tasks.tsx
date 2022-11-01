@@ -112,7 +112,7 @@ const Remote = (props: { sx?: SxProps<Theme> }): JSX.Element => {
 
     // 更新连接服务端的状态
     // 操作授权码
-    let headers = await genHeaders(vps.auth, new Date().getTime())
+    let headers = await genHeaders(vps.auth, Date.now())
 
     let resp = await request(`${vps.domain}/api/pics/dl/status`,
       undefined, {headers: headers}).catch((e) => {

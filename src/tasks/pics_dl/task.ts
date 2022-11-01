@@ -146,10 +146,11 @@ const sendToDL = async (path: string,
   }
 
   // 操作授权码
-  let t = new Date().getTime()
+  let t = Date.now()
   let s = await sha256(vps.auth + t + vps.auth)
+  let headers = new Headers({t: t.toString(), s: s})
 
-  let resp = await request(`${vps.domain}${path}?t=${t}&s=${s}`, albums)
+  let resp = await request(`${vps.domain}${path}`, albums, {headers: headers})
     .catch(e => console.log("发送下载图集的请求出错", e))
   if (!resp) {
     showSb({open: true, severity: "error", message: "发送下载图集的请求出错"})
@@ -240,16 +241,16 @@ export const startDLPics = async function (setWorking: React.Dispatch<React.SetS
     return
   }
 
-  // 将图集数据保存到本地，同时发送下载请求
+  // 将图集数据保存到本地
   download(JSON.stringify(albums, null, 2), `pics_tasks_${Date.now()}.json`)
+  // 同时发送下载请求
+  sendToDL("/api/pics/dl", albums, showSb)
 
-  let success = await sendToDL("/api/pics/dl", albums, showSb)
-  if (success) {
-    // 存储该任务的进度，之所以重读存储，是避免当执行任务时对该扩展进行设置而无效的问题
-    let sData = await chrome.storage.sync.get({picTasks: {list: []}})
-    sData.picTasks.list = picTasks.list
-    chrome.storage.sync.set({picTasks: sData.picTasks})
-  }
+  // 存储该任务的进度，之所以重读存储，是避免当执行任务时对该扩展进行设置而无效的问题
+  let sData = await chrome.storage.sync.get({picTasks: {list: []}})
+  sData.picTasks.list = picTasks.list
+  chrome.storage.sync.set({picTasks: sData.picTasks})
+
   setWorking(false)
 }
 
