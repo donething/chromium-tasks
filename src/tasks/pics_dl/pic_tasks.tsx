@@ -90,61 +90,62 @@ const Remote = (props: { sx?: SxProps<Theme> }): JSX.Element => {
   // 发送消息
   const {showSb} = useSharedSnackbar()
 
-  useEffect(() => {
-    const init = async () => {
-      // 从设置中读取服务端信息
-      let dataSettings = await chrome.storage.sync.get({settings: {vps: {}}})
-      let vps = dataSettings.settings.vps
-      if (!vps.domain || !vps.auth) {
-        console.log("VPS 服务端信息为空，无法连接到服务端")
-        showSb({open: true, severity: "info", message: "VPS 服务端信息为空"})
-        return
-      }
+  // 生成请求头
+  const genHeaders = React.useCallback(async (auth: string, t: number) => new Headers({
+    t: t.toString(),
+    s: (await sha256(auth + t + auth))
+  }), [])
 
-      // 配置服务端域名
-      setDomain(vps.domain)
-
-      // 更新连接服务端的状态
-      // 操作授权码
-      let t = new Date().getTime()
-      let s = await sha256(vps.auth + t + vps.auth)
-
-      let resp = await request(`${vps.domain}/api/pics/dl/status?t=${t}&s=${s}`).catch((e) => {
-        console.error("连接服务端出错，网络错误：", e)
-        showSb({open: true, severity: "error", message: "连接服务端出错，网络错误"})
-        setConnOK(false)
-      })
-      if (!resp) return
-
-      let obj = await resp.json().catch((e) => {
-        console.error("服务端响应的内容有误：", e)
-        showSb({open: true, severity: "error", message: "连接服务端出错，无法解析响应内容"})
-        setConnOK(false)
-      })
-      if (!obj) return
-
-      setConnOK(obj?.code === 0)
-      console.log("服务端返回状态：", obj)
-
-
-      // 获取其它状态信息，需要等上面的服务器状态正常，才能获取下面的状态
-      // 获取正在进行的任务状态
-      request(`${vps.domain}/api/pics/dl/status?t=${t}&s=${s}`).then(resp => resp.json()).then(obj => {
-        if (obj?.code === 0) {
-          setStatusMap(obj.data)
-        }
-      })
-
-      // 获取任务失败的数量
-      // 获取需要重试的图集数
-      request(`${vps.domain}/api/pics/dl/count?t=${t}&s=${s}`).then(resp => resp.json()).then(obj => {
-        if (obj?.code === 0) {
-          setTotalCount(obj.data)
-        }
-      })
+  // 初始化
+  const init = async () => {
+    // 从设置中读取服务端信息
+    let dataSettings = await chrome.storage.sync.get({settings: {vps: {}}})
+    let vps = dataSettings.settings.vps
+    if (!vps.domain || !vps.auth) {
+      console.log("VPS 服务端信息为空，无法连接到服务端")
+      showSb({open: true, severity: "info", message: "VPS 服务端信息为空"})
+      return
     }
 
-    // 初始化
+    // 配置服务端域名
+    setDomain(vps.domain)
+
+    // 更新连接服务端的状态
+    // 操作授权码
+    let headers = await genHeaders(vps.auth, new Date().getTime())
+
+    let resp = await request(`${vps.domain}/api/pics/dl/status`,
+      undefined, {headers: headers}).catch((e) => {
+      console.error("连接服务端出错，网络错误：", e)
+      showSb({open: true, severity: "error", message: "连接服务端出错，网络错误"})
+      setConnOK(false)
+    })
+    if (!resp) return
+
+    let obj = await resp.json().catch((e) => {
+      console.error("服务端响应的内容有误：", e)
+      showSb({open: true, severity: "error", message: "连接服务端出错，无法解析响应内容"})
+      setConnOK(false)
+    })
+    if (!obj) return
+
+    setConnOK(obj?.code === 0)
+    if (obj?.code === 0) {
+      setStatusMap(obj.data)
+    }
+
+
+    // 获取任务失败的数量
+    // 获取需要重试的图集数
+    request(`${vps.domain}/api/pics/dl/count`,
+      undefined, {headers: headers}).then(resp => resp.json()).then(obj => {
+      if (obj?.code === 0) {
+        setTotalCount(obj.data)
+      }
+    })
+  }
+
+  useEffect(() => {
     init()
   }, [count])
 
@@ -163,13 +164,15 @@ const Remote = (props: { sx?: SxProps<Theme> }): JSX.Element => {
 
   return (
     <Card sx={props.sx}>
-      <CardHeader title={"服务端状态"} slot={
-        <Stack direction={"row"}>
-          <IconButton title="刷新" onClick={() => setCount(prev => ++prev)}><RefreshOutlinedIcon/></IconButton>
+      <CardHeader title={"服务端状态"} action={
+        <Stack direction={"row"} alignItems={"center"} gap={1}>
+          <IconButton title="刷新" onClick={() => setCount(prev => ++prev)}>
+            <RefreshOutlinedIcon/>
+          </IconButton>
 
           <Typography title="服务端的连接状态"
                       color={connOK === true ? "#52C41A" : connOK === false ? "#FF0000" : "inherit"}>
-            {connOK === true ? "正常" : connOK === false ? "无法连接" : "未知"}
+            {connOK === true ? "正常" : connOK === false ? "错误" : "获取"}
           </Typography>
         </Stack>}
       />
@@ -189,9 +192,9 @@ const Remote = (props: { sx?: SxProps<Theme> }): JSX.Element => {
       <Divider/>
 
       <CardActions>
-        <Button title="查看服务端的下载状态" onClick={() => {
-          window.open(`${domain}/#/tasks`, "_blank")
-        }}>查看进度</Button>
+        {/*<Button title="查看服务端的下载状态" onClick={() => {*/}
+        {/*  window.open(`${domain}/#/tasks`, "_blank")*/}
+        {/*}}>查看进度</Button>*/}
 
         <Button title="重试下载失败的图集" onClick={() => startRetry(showSb)}>重试失败</Button>
       </CardActions>
