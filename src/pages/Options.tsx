@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react'
 import Card, {CardProps} from "@mui/material/Card"
-import {CardHeader, TextField} from "@mui/material"
+import {CardHeader} from "@mui/material"
 import CardContent from "@mui/material/CardContent"
 import Button from "@mui/material/Button"
 import {delRevoke, DoBackupPanelChromium, DoPasswdField, useSharedSnackbar} from "do-comps"
@@ -39,7 +39,7 @@ const WXToken = (props?: CardProps): JSX.Element => {
 
       <Divider/>
 
-      <CardContent>
+      <CardContent sx={{display: "flex", flexFlow: "column nowrap", gap: 4}}>
         <DoPasswdField label="企业ID" value={wxToken.appid}
                        setObject={value => setWxToken(prev => ({...prev, appid: value}))}/>
 
@@ -53,21 +53,6 @@ const WXToken = (props?: CardProps): JSX.Element => {
       <Divider/>
 
       <CardActions>
-        <Button color={"primary"} onClick={async _ => {
-          if (!wxToken.appid || !wxToken.secret || !wxToken.toUID) {
-            showSb({open: true, message: "微信 Token 中部分信息为空", severity: "warning"})
-            return
-          }
-
-          let data = await chrome.storage.sync.get({settings: {}})
-          data.settings.wxToken = wxToken
-
-          await chrome.storage.sync.set({settings: data.settings})
-          console.log("已保存 微信推送的 Token")
-          showSb({open: true, message: "已保存 微信推送的 Token", severity: "success"})
-        }}>保存 Token
-        </Button>
-
         <Button color={"warning"} onClick={_ => {
           delRevoke<typeof wxTokenInit>("微信推送的Token", wxToken, async () => {
             // 删除输入框绑定的数据
@@ -93,8 +78,21 @@ const WXToken = (props?: CardProps): JSX.Element => {
               showSb({open: true, message: "已恢复 微信推送的 Token", severity: "success"})
             })
           }, showSb)
-        }}>删除 Token
-        </Button>
+        }}>删除 Token</Button>
+
+        <Button color={"primary"} onClick={async _ => {
+          if (!wxToken.appid || !wxToken.secret || !wxToken.toUID) {
+            showSb({open: true, message: "微信 Token 中部分信息为空", severity: "warning"})
+            return
+          }
+
+          let data = await chrome.storage.sync.get({settings: {}})
+          data.settings.wxToken = wxToken
+
+          await chrome.storage.sync.set({settings: data.settings})
+          console.log("已保存 微信推送的 Token")
+          showSb({open: true, message: "已保存 微信推送的 Token", severity: "success"})
+        }}>保存 Token</Button>
       </CardActions>
     </Card>
   )
@@ -127,7 +125,7 @@ const VPS = (props?: CardProps): JSX.Element => {
 
       <Divider/>
 
-      <CardContent>
+      <CardContent sx={{display: "flex", flexFlow: "column nowrap", gap: 4}}>
         <DoPasswdField label="域名" value={vpsInfo.domain}
                        setObject={value => setVPSInfo(prev => ({...prev, domain: value}))}/>
         <DoPasswdField label="操作码" value={vpsInfo.auth}
@@ -136,22 +134,7 @@ const VPS = (props?: CardProps): JSX.Element => {
 
       <Divider/>
 
-      <CardActions>
-        <Button color={"primary"} onClick={async _ => {
-          if (!vpsInfo.domain || !vpsInfo.auth) {
-            showSb({open: true, message: "VPS 信息中部分信息为空", severity: "warning"})
-            return
-          }
-
-          let data = await chrome.storage.sync.get({settings: {}})
-          data.settings.vps = vpsInfo
-          chrome.storage.sync.set({settings: data.settings}, () => {
-            console.log("已保存 VPS 信息")
-            showSb({open: true, message: "已保存 VPS 信息", severity: "success"})
-          })
-        }}>保存信息
-        </Button>
-
+      <CardActions sx={{marginTop: "auto"}}>
         <Button color={"warning"} onClick={_ => {
           delRevoke(`VPS 信息`, vpsInfo, async () => {
             // 删除输入框绑定的数据
@@ -177,8 +160,21 @@ const VPS = (props?: CardProps): JSX.Element => {
               showSb({open: true, message: "已保存 VPS 信息", severity: "success"})
             })
           }, showSb)
-        }}>删除信息
-        </Button>
+        }}>删除信息</Button>
+
+        <Button color={"primary"} onClick={async _ => {
+          if (!vpsInfo.domain || !vpsInfo.auth) {
+            showSb({open: true, message: "VPS 信息中部分信息为空", severity: "warning"})
+            return
+          }
+
+          let data = await chrome.storage.sync.get({settings: {}})
+          data.settings.vps = vpsInfo
+          chrome.storage.sync.set({settings: data.settings}, () => {
+            console.log("已保存 VPS 信息")
+            showSb({open: true, message: "已保存 VPS 信息", severity: "success"})
+          })
+        }}>保存信息</Button>
       </CardActions>
     </Card>
   )
@@ -191,7 +187,7 @@ const Options = (): JSX.Element => {
   }, [])
 
   return (
-    <Stack direction={"row"} spacing={2}>
+    <Stack direction={"row"} spacing={4}>
       <WXToken sx={{width: 300}}/>
       <VPS sx={{width: 300}}/>
       <DoBackupPanelChromium/>

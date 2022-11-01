@@ -11,7 +11,7 @@ import {
   DoPanelHeader,
   DoPanelContent,
   DoText,
-  DoTextTitle
+  DoTextTitle, DoPasswdField
 } from "do-comps"
 import TextField from "@mui/material/TextField"
 import Card from "@mui/material/Card"
@@ -54,15 +54,14 @@ const ZJSettings = (props: {
   const {showSb} = useSharedSnackbar()
 
   return (
-    <Stack spacing={2} paddingTop={1}>
-      <TextField value={tmpInfos.ssid} size={"small"} label={"用户的SSID"}
-                 placeholder={"抓包获取 sessionid，网址如 /v2/recommend?sessionid=xxx"}
-                 onChange={event => setTmpInfos({...tmpInfos, ssid: event.target.value})}/>
-      <TextField value={tmpInfos.host}
-                 placeholder={"如 https://example.com，" +
-                   "网址来源如 https://appgw-el.fkw03.cn/v2/recommend?count=4&sessionid=xxx"}
-                 label={"网站的域名"} size={"small"}
-                 onChange={event => setTmpInfos({...tmpInfos, host: event.target.value})}/>
+    <Stack spacing={4} paddingTop={1}>
+      <DoPasswdField label={"用户的SSID"} value={tmpInfos.ssid}
+                     placeholder={"抓包获取 sessionid，网址如 /v2/recommend?sessionid=xxx"}
+                     setObject={value => setTmpInfos(prev => ({...prev, ssid: value}))}/>
+      <DoPasswdField label={"网站的域名"} value={tmpInfos.host}
+                     placeholder={"如 https://example.com，" +
+                       "网址来源如 https://appgw-el.fkw03.cn/v2/recommend?count=4&sessionid=xxx"}
+                     setObject={value => setTmpInfos(prev => ({...prev, host: value}))}/>
 
       <Stack direction={"row"} justifyContent={"space-between"}>
         <Button color={"inherit"} onClick={() => props.showDialog({open: false})}>取消</Button>
