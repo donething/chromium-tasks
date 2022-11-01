@@ -3,7 +3,7 @@ import Card, {CardProps} from "@mui/material/Card"
 import {CardHeader, TextField} from "@mui/material"
 import CardContent from "@mui/material/CardContent"
 import Button from "@mui/material/Button"
-import {delRevoke, DoBackupPanelChromium, useSharedSnackbar} from "do-comps"
+import {delRevoke, DoBackupPanelChromium, DoPasswdField, useSharedSnackbar} from "do-comps"
 import CardActions from "@mui/material/CardActions"
 import Stack from "@mui/material/Stack"
 import Divider from "@mui/material/Divider"
@@ -40,14 +40,14 @@ const WXToken = (props?: CardProps): JSX.Element => {
       <Divider/>
 
       <CardContent>
-        <TextField label="企业ID" type={"password"} value={wxToken.appid} size={"small"}
-                   onChange={e => setWxToken(prev => ({...prev, appid: e.target.value}))}/>
+        <DoPasswdField label="企业ID" value={wxToken.appid}
+                       setObject={value => setWxToken(prev => ({...prev, appid: value}))}/>
 
-        <TextField label="秘钥" type={"password"} value={wxToken.secret} size={"small"}
-                   onChange={e => setWxToken(prev => ({...prev, secret: e.target.value}))}/>
+        <DoPasswdField label="秘钥" value={wxToken.secret}
+                       setObject={value => setWxToken(prev => ({...prev, secret: value}))}/>
 
-        <TextField label="应用ID" type={"password"} value={wxToken.toUID} size={"small"}
-                   onChange={e => setWxToken(prev => ({...prev, toUID: e.target.value}))}/>
+        <DoPasswdField label="应用ID" value={wxToken.toUID}
+                       setObject={value => setWxToken(prev => ({...prev, toUID: value}))}/>
       </CardContent>
 
       <Divider/>
@@ -128,10 +128,10 @@ const VPS = (props?: CardProps): JSX.Element => {
       <Divider/>
 
       <CardContent>
-        <TextField label="域名" value={vpsInfo.domain} type={"password"} size={"small"}
-                   onChange={e => setVPSInfo(prev => ({...prev, domain: e.target.value}))}/>
-        <TextField label="操作码" value={vpsInfo.auth} type={"password"} size={"small"}
-                   onChange={e => setVPSInfo(prev => ({...prev, auth: e.target.value}))}/>
+        <DoPasswdField label="域名" value={vpsInfo.domain}
+                       setObject={value => setVPSInfo(prev => ({...prev, domain: value}))}/>
+        <DoPasswdField label="操作码" value={vpsInfo.auth}
+                       setObject={value => setVPSInfo(prev => ({...prev, auth: value}))}/>
       </CardContent>
 
       <Divider/>
