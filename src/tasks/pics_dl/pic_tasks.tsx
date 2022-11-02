@@ -187,7 +187,7 @@ const Remote = (props: { sx?: SxProps<Theme> }): JSX.Element => {
         </Stack>
       </DoPanelHeader>
 
-      <DoPanelContent padding={2}>
+      <DoPanelContent padding={2} alignItems={"stretch"}>
         <Divider>本次</Divider>
         {statusElems.length !== 0 ? <ul>{statusElems}</ul> : <Alert severity="info">没有进行中的任务</Alert>}
 
