@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from "react"
 import {request, sha256, insertOrdered} from "do-utils"
 import {clearProcess, sites, startDLPics, startRetry} from "./task"
-import CardHeader from "@mui/material/CardHeader"
 import IconButton from "@mui/material/IconButton"
 import Switch from "@mui/material/Switch"
 import type {SxProps, Theme} from "@mui/material"
@@ -9,24 +8,24 @@ import {
   delRevokeArray,
   DoListAdd,
   DoLItemProps,
-  DoOptionsInputProps,
-  DoSnackbarProps,
+  DoOptionsInputProps, DoPanel, DoPanelContent, DoPanelFooter, DoPanelHeader,
+  DoSnackbarProps, DoTextTitle,
   useSharedSnackbar
 } from "do-comps"
-import Card from "@mui/material/Card"
 import Stack from "@mui/material/Stack"
 import Button from "@mui/material/Button"
 import HighlightOffOutlinedIcon from '@mui/icons-material/HighlightOffOutlined'
 import FormatColorResetOutlinedIcon from '@mui/icons-material/FormatColorResetOutlined'
 import CloudDownloadOutlinedIcon from '@mui/icons-material/CloudDownloadOutlined'
-import CardContent from "@mui/material/CardContent"
-import CardActions from "@mui/material/CardActions"
 import Alert from "@mui/material/Alert"
 import Divider from "@mui/material/Divider"
 import Typography from "@mui/material/Typography"
 import RefreshOutlinedIcon from '@mui/icons-material/RefreshOutlined'
 import type {pstatus} from "./types"
 import type {ptask} from "./types"
+
+// 存储的 VPS 信息的类型
+type VPSInfo = { domain: string, auth: string }
 
 // 删除项目
 const handleDel = async (task: ptask.Task,
@@ -77,7 +76,8 @@ const getTaskInfo = async (task: ptask.Task,
 // 远程服务端的状态组件
 const Remote = (props: { sx?: SxProps<Theme> }): JSX.Element => {
   // 域名、连接状态
-  const [domain, setDomain] = useState("")
+  const [vps, setVps] = useState<VPSInfo>({domain: "", auth: ""})
+
   const [connOK, setConnOK] = useState<boolean | undefined>(undefined)
 
   // 状态记录
@@ -108,13 +108,16 @@ const Remote = (props: { sx?: SxProps<Theme> }): JSX.Element => {
     }
 
     // 配置服务端域名
-    setDomain(vps.domain)
+    setVps(vps)
+  }
 
+  // 获取数据
+  const getData = async (vpsInfo: VPSInfo) => {
     // 更新连接服务端的状态
     // 操作授权码
-    let headers = await genHeaders(vps.auth, Date.now())
+    let headers = await genHeaders(vpsInfo.auth, Date.now())
 
-    let resp = await request(`${vps.domain}/api/pics/dl/status`,
+    let resp = await request(`${vpsInfo.domain}/api/pics/dl/status`,
       undefined, {headers: headers}).catch((e) => {
       console.error("连接服务端出错，网络错误：", e)
       showSb({open: true, severity: "error", message: "连接服务端出错，网络错误"})
@@ -134,10 +137,9 @@ const Remote = (props: { sx?: SxProps<Theme> }): JSX.Element => {
       setStatusMap(obj.data)
     }
 
-
     // 获取任务失败的数量
     // 获取需要重试的图集数
-    request(`${vps.domain}/api/pics/dl/count`,
+    request(`${vpsInfo.domain}/api/pics/dl/count`,
       undefined, {headers: headers}).then(resp => resp.json()).then(obj => {
       if (obj?.code === 0) {
         setTotalCount(obj.data)
@@ -147,7 +149,13 @@ const Remote = (props: { sx?: SxProps<Theme> }): JSX.Element => {
 
   useEffect(() => {
     init()
-  }, [count])
+  }, [])
+
+  useEffect(() => {
+    if (vps.auth === "" || vps.domain === "") return
+
+    getData(vps)
+  }, [vps, count])
 
   // 生成任务的状态
   let statusElems: Array<JSX.Element> = []
@@ -163,8 +171,10 @@ const Remote = (props: { sx?: SxProps<Theme> }): JSX.Element => {
   }
 
   return (
-    <Card sx={props.sx}>
-      <CardHeader title={"服务端状态"} action={
+    <DoPanel sx={props.sx} divider={<Divider/>}>
+      <DoPanelHeader>
+        <DoTextTitle>服务端状态</DoTextTitle>
+
         <Stack direction={"row"} alignItems={"center"} gap={1}>
           <IconButton title="刷新" onClick={() => setCount(prev => ++prev)}>
             <RefreshOutlinedIcon/>
@@ -174,31 +184,24 @@ const Remote = (props: { sx?: SxProps<Theme> }): JSX.Element => {
                       color={connOK === true ? "#52C41A" : connOK === false ? "#FF0000" : "inherit"}>
             {connOK === true ? "正常" : connOK === false ? "错误" : "获取"}
           </Typography>
-        </Stack>}
-      />
+        </Stack>
+      </DoPanelHeader>
 
-      <Divider/>
+      <DoPanelContent padding={2}>
+        <Divider>本次</Divider>
+        {statusElems.length !== 0 ? <ul>{statusElems}</ul> : <Alert severity="info">没有进行中的任务</Alert>}
 
-      <CardContent>
-        <ul>{statusElems.length !== 0 ?
-          statusElems :
-          <Alert severity="info">没有进行中的任务</Alert>}
-        </ul>
-
-        <Divider sx={{marginTop: 2}}>总计量</Divider>
+        <Divider sx={{marginTop: 2}}>总共</Divider>
         <Typography>失败 {totalCount.fail} 个，跳过 {totalCount.skip} 个</Typography>
-      </CardContent>
 
-      <Divider/>
-
-      <CardActions>
+        <Divider sx={{marginTop: 2}}/>
         {/*<Button title="查看服务端的下载状态" onClick={() => {*/}
         {/*  window.open(`${domain}/#/tasks`, "_blank")*/}
         {/*}}>查看进度</Button>*/}
 
         <Button title="重试下载失败的图集" onClick={() => startRetry(showSb)}>重试失败</Button>
-      </CardActions>
-    </Card>
+      </DoPanelContent>
+    </DoPanel>
   )
 }
 
@@ -287,7 +290,7 @@ const PicTasksComp = (): JSX.Element => {
   }, [])
 
   return (
-    <Stack direction={"row"} spacing={2}>
+    <Stack direction={"row"} spacing={4}>
       <DoListAdd sx={{width: 400}} list={infos} title={"图集下载"} inputProps={inputProps} slot={
         <Stack direction={"row"}>
           <IconButton title="删除进度" onClick={() => clearProcess(showSb)}>
