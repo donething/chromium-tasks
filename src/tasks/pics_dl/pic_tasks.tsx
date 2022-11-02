@@ -8,7 +8,7 @@ import {
   delRevokeArray,
   DoListAdd,
   DoLItemProps,
-  DoOptionsInputProps, DoPanel, DoPanelContent, DoPanelFooter, DoPanelHeader,
+  DoOptionsInputProps, DoPanel, DoPanelContent, DoPanelHeader,
   DoSnackbarProps, DoTextTitle,
   useSharedSnackbar
 } from "do-comps"
@@ -23,6 +23,7 @@ import Typography from "@mui/material/Typography"
 import RefreshOutlinedIcon from '@mui/icons-material/RefreshOutlined'
 import type {pstatus} from "./types"
 import type {ptask} from "./types"
+import {Box} from "@mui/material"
 
 // 存储的 VPS 信息的类型
 type VPSInfo = { domain: string, auth: string }
@@ -188,18 +189,19 @@ const Remote = (props: { sx?: SxProps<Theme> }): JSX.Element => {
       </DoPanelHeader>
 
       <DoPanelContent padding={2} alignItems={"stretch"}>
-        <Divider>本次</Divider>
+        <Box paddingBottom={2}><Divider>本次</Divider></Box>
         {statusElems.length !== 0 ? <ul>{statusElems}</ul> : <Alert severity="info">没有进行中的任务</Alert>}
 
-        <Divider sx={{marginTop: 2}}>总共</Divider>
+        <Box paddingBottom={2}><Divider sx={{marginTop: 2}}>总共</Divider></Box>
         <Typography>失败 {totalCount.fail} 个，跳过 {totalCount.skip} 个</Typography>
 
-        <Divider sx={{marginTop: 2}}/>
+        <Box paddingBottom={2}><Divider sx={{marginTop: 2}}>操作</Divider></Box>
         {/*<Button title="查看服务端的下载状态" onClick={() => {*/}
         {/*  window.open(`${domain}/#/tasks`, "_blank")*/}
         {/*}}>查看进度</Button>*/}
 
-        <Button title="重试下载失败的图集" onClick={() => startRetry(showSb)}>重试失败</Button>
+        <Button title="重试下载失败的图集" sx={{width: "fit-content"}}
+                onClick={() => startRetry(showSb)}>重试失败</Button>
       </DoPanelContent>
     </DoPanel>
   )
@@ -245,7 +247,7 @@ const PicTasksComp = (): JSX.Element => {
 
     // 保存到存储
     picTasks.list.push(task)
-    chrome.storage.sync.set({picTasks: picTasks})
+    await chrome.storage.sync.set({picTasks: picTasks})
     console.log("已添加图集任务", picTasks)
     showSb({open: true, severity: "success", message: "已添加图集任务"})
 
