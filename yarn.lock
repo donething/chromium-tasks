@@ -3132,10 +3132,10 @@ dir-glob@^3.0.1:
   dependencies:
     path-type "^4.0.0"
 
-do-comps@^0.2.54:
-  version "0.2.54"
-  resolved "https://registry.yarnpkg.com/do-comps/-/do-comps-0.2.54.tgz#09d5f989478c17c312f841ccc3796e422ff2d211"
-  integrity sha512-M2/knxb4Q6xI6oVWd9p7yn2BQ5dynW8BgmZj8b8cvroDTpM8ww+hmhyEM1zNHIHCP6KQDb/Uc3TaXHhMRgv2PQ==
+do-comps@^0.2.56:
+  version "0.2.56"
+  resolved "https://registry.yarnpkg.com/do-comps/-/do-comps-0.2.56.tgz#d61831fd9eb27ca13098a73e927e2fc7051f1d62"
+  integrity sha512-T7c8vpwqBPV+pov2VK/ZJAoyqjnvvV+gQ1HhTyuAKTxeP9y65zPmS11Aae82ZkM7L8X8cxgMFWlyaVVwDTQWHg==
   dependencies:
     use-between "^1.3.4"
 
