@@ -121,7 +121,7 @@ const VPS = (props?: CardProps): JSX.Element => {
 
   return (
     <Card {...props}>
-      <CardHeader title={"VPS 信息"}/>
+      <CardHeader title={"VPS 图片下载"}/>
 
       <Divider/>
 
