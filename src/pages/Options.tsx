@@ -98,88 +98,6 @@ const WXToken = (props?: CardProps): JSX.Element => {
   )
 }
 
-// VPS 信息的初始值
-const vpsInfoInit = {domain: "", auth: ""}
-
-// VPS 信息的组件
-const VPS = (props?: CardProps): JSX.Element => {
-  // VPS 的域名、验证码
-  const [vpsInfo, setVPSInfo] = useState(vpsInfoInit)
-  // 提示消息
-  const {showSb} = useSharedSnackbar()
-
-  // 仅在组件被导入时读取数据，组件有变动（重新渲染）时不执行
-  useEffect(() => {
-    // 读取存储的数据，显示
-    chrome.storage.sync.get({settings: {vps: {}}}).then(data => {
-      console.log("读取存储的 VPS 信息")
-      if (data.settings.vps) {
-        setVPSInfo(data.settings.vps)
-      }
-    })
-  }, [])
-
-  return (
-    <Card {...props}>
-      <CardHeader title={"VPS 图片下载"}/>
-
-      <Divider/>
-
-      <CardContent sx={{display: "flex", flexFlow: "column nowrap", gap: 4}}>
-        <DoPasswdField label="域名" value={vpsInfo.domain}
-                       setObject={value => setVPSInfo(prev => ({...prev, domain: value}))}/>
-        <DoPasswdField label="操作码" value={vpsInfo.auth}
-                       setObject={value => setVPSInfo(prev => ({...prev, auth: value}))}/>
-      </CardContent>
-
-      <Divider/>
-
-      <CardActions sx={{marginTop: "auto"}}>
-        <Button color={"warning"} onClick={_ => {
-          delRevoke(`VPS 信息`, vpsInfo, async () => {
-            // 删除输入框绑定的数据
-            setVPSInfo(vpsInfoInit)
-
-            // 保存到 chromium storage
-            let data = await chrome.storage.sync.get({settings: {}})
-            data.settings.vps = undefined
-            chrome.storage.sync.set({settings: data.settings}).then(() => {
-              console.log("已删除 VPS 信息")
-              showSb({open: true, message: "已删除 VPS 信息", severity: "success"})
-            })
-          }, async origin => {
-            // 撤销删除
-            // 恢复输入框绑定的数据
-            setVPSInfo(origin)
-
-            // 恢复到 chromium storage
-            let data = await chrome.storage.sync.get({settings: {}})
-            data.settings.vps = origin
-            chrome.storage.sync.set({settings: data.settings}, () => {
-              console.log("已保存 VPS 信息")
-              showSb({open: true, message: "已保存 VPS 信息", severity: "success"})
-            })
-          }, showSb)
-        }}>删除信息</Button>
-
-        <Button color={"primary"} onClick={async _ => {
-          if (!vpsInfo.domain || !vpsInfo.auth) {
-            showSb({open: true, message: "VPS 信息中部分信息为空", severity: "warning"})
-            return
-          }
-
-          let data = await chrome.storage.sync.get({settings: {}})
-          data.settings.vps = vpsInfo
-          chrome.storage.sync.set({settings: data.settings}, () => {
-            console.log("已保存 VPS 信息")
-            showSb({open: true, message: "已保存 VPS 信息", severity: "success"})
-          })
-        }}>保存信息</Button>
-      </CardActions>
-    </Card>
-  )
-}
-
 // 选项组件
 const Options = (): JSX.Element => {
   useEffect(() => {
@@ -189,7 +107,6 @@ const Options = (): JSX.Element => {
   return (
     <Stack direction={"row"} spacing={4}>
       <WXToken sx={{width: 300}}/>
-      <VPS sx={{width: 300}}/>
       <DoBackupPanelChromium/>
     </Stack>
   )

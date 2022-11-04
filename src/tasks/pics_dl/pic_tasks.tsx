@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react"
-import {request, sha256, insertOrdered} from "do-utils"
+import {request, insertOrdered} from "do-utils"
 import {clearProcess, sites, startDLPics, startRetry} from "./task"
 import IconButton from "@mui/material/IconButton"
 import Switch from "@mui/material/Switch"
@@ -24,9 +24,6 @@ import RefreshOutlinedIcon from '@mui/icons-material/RefreshOutlined'
 import type {pstatus} from "./types"
 import type {ptask} from "./types"
 import {Box} from "@mui/material"
-
-// 存储的 VPS 信息的类型
-type VPSInfo = { domain: string, auth: string }
 
 // 删除项目
 const handleDel = async (task: ptask.Task,
@@ -76,9 +73,6 @@ const getTaskInfo = async (task: ptask.Task,
 
 // 远程服务端的状态组件
 const Remote = (props: { sx?: SxProps<Theme> }): JSX.Element => {
-  // 域名、连接状态
-  const [vps, setVps] = useState<VPSInfo>({domain: "", auth: ""})
-
   const [connOK, setConnOK] = useState<boolean | undefined>(undefined)
 
   // 状态记录
@@ -91,35 +85,10 @@ const Remote = (props: { sx?: SxProps<Theme> }): JSX.Element => {
   // 发送消息
   const {showSb} = useSharedSnackbar()
 
-  // 生成请求头
-  const genHeaders = React.useCallback(async (auth: string, t: number) => new Headers({
-    t: t.toString(),
-    s: (await sha256(auth + t + auth))
-  }), [])
-
-  // 初始化
-  const init = async () => {
-    // 从设置中读取服务端信息
-    let dataSettings = await chrome.storage.sync.get({settings: {vps: {}}})
-    let vps = dataSettings.settings.vps
-    if (!vps.domain || !vps.auth) {
-      console.log("VPS 服务端信息为空，无法连接到服务端")
-      showSb({open: true, severity: "info", message: "VPS 服务端信息为空"})
-      return
-    }
-
-    // 配置服务端域名
-    setVps(vps)
-  }
-
   // 获取数据
-  const getData = async (vpsInfo: VPSInfo) => {
+  const getData = async () => {
     // 更新连接服务端的状态
-    // 操作授权码
-    let headers = await genHeaders(vpsInfo.auth, Date.now())
-
-    let resp = await request(`${vpsInfo.domain}/api/pics/dl/status`,
-      undefined, {headers: headers}).catch((e) => {
+    let resp = await request(`http://127.0.0.1:8800/api/pics/dl/status`).catch((e) => {
       console.error("连接服务端出错，网络错误：", e)
       showSb({open: true, severity: "error", message: "连接服务端出错，网络错误"})
       setConnOK(false)
@@ -140,8 +109,7 @@ const Remote = (props: { sx?: SxProps<Theme> }): JSX.Element => {
 
     // 获取任务失败的数量
     // 获取需要重试的图集数
-    request(`${vpsInfo.domain}/api/pics/dl/count`,
-      undefined, {headers: headers}).then(resp => resp.json()).then(obj => {
+    request(`http://127.0.0.1:8800/api/pics/dl/count`).then(resp => resp.json()).then(obj => {
       if (obj?.code === 0) {
         setTotalCount(obj.data)
       }
@@ -149,14 +117,8 @@ const Remote = (props: { sx?: SxProps<Theme> }): JSX.Element => {
   }
 
   useEffect(() => {
-    init()
-  }, [])
-
-  useEffect(() => {
-    if (vps.auth === "" || vps.domain === "") return
-
-    getData(vps)
-  }, [vps, count])
+    getData()
+  }, [count])
 
   // 生成任务的状态
   let statusElems: Array<JSX.Element> = []
