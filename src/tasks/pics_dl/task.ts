@@ -1,5 +1,5 @@
 import {request} from "do-utils"
-import {sleep, download, sha256} from "do-utils"
+import {sleep, download} from "do-utils"
 import IconWeibo from "../../icons/weibo.svg"
 import type {DoSnackbarProps} from "do-comps"
 import type React from "react"
