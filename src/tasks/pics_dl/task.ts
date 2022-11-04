@@ -136,21 +136,7 @@ export const sites = {
 const sendToDL = async (path: string,
                         albums: Array<pinfo.Album>,
                         showSb: (ps: DoSnackbarProps) => void,): Promise<boolean> => {
-  // 从设置中读取服务端信息，以实际发送下载请求
-  let dataSettings = await chrome.storage.sync.get({settings: {vps: {}}})
-  let vps = dataSettings.settings.vps
-  if (!vps.domain || !vps.auth) {
-    console.log("VPS 信息为空，无法发送下载图集的请求")
-    showSb({open: true, severity: "warning", message: "VPS 信息为空，无法发送下载图集的请求"})
-    return false
-  }
-
-  // 操作授权码
-  let t = Date.now()
-  let s = await sha256(vps.auth + t + vps.auth)
-  let headers = new Headers({t: t.toString(), s: s})
-
-  let resp = await request(`${vps.domain}${path}`, albums, {headers: headers})
+  let resp = await request(`http://127.0.0.1:8800${path}`, albums)
     .catch(e => console.log("发送下载图集的请求出错", e))
   if (!resp) {
     showSb({open: true, severity: "error", message: "发送下载图集的请求出错"})
