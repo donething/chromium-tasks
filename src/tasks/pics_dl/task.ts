@@ -235,7 +235,7 @@ export const startDLPics = async function (setWorking: React.Dispatch<React.SetS
   // 存储该任务的进度，之所以重读存储，是避免当执行任务时对该扩展进行设置而无效的问题
   let sData = await chrome.storage.sync.get({picTasks: {list: []}})
   sData.picTasks.list = picTasks.list
-  chrome.storage.sync.set({picTasks: sData.picTasks})
+  await chrome.storage.sync.set({picTasks: sData.picTasks})
 
   setWorking(false)
 }
@@ -269,6 +269,6 @@ export const clearProcess = async (showSb: (ps: DoSnackbarProps) => void) => {
     let data = await chrome.storage.sync.get({picTasks: {}})
     let picTasks: ptask.PicTasks = data.picTasks
     picTasks.list = origin.list
-    chrome.storage.sync.set({picTasks: picTasks})
+    await chrome.storage.sync.set({picTasks: picTasks})
   }, showSb)
 }
