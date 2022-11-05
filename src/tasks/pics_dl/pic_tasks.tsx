@@ -85,6 +85,8 @@ const Remote = (props: { sx?: SxProps<Theme> }): JSX.Element => {
   // 发送消息
   const {showSb} = useSharedSnackbar()
 
+  const refresh = React.useCallback(() => setCount(prev => ++prev), [])
+
   // 获取数据
   const getData = async () => {
     // 更新连接服务端的状态
@@ -115,6 +117,11 @@ const Remote = (props: { sx?: SxProps<Theme> }): JSX.Element => {
       }
     })
   }
+
+  useEffect(() => {
+    let t = setTimeout(() => refresh(), 3000)
+    return () => clearTimeout(t)
+  }, [count])
 
   useEffect(() => {
     getData()
