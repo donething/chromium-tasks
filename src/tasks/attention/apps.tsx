@@ -17,6 +17,14 @@ import HighlightOffOutlinedIcon from '@mui/icons-material/HighlightOffOutlined'
 import {IconButton, Switch} from "@mui/material"
 import Typography from "@mui/material/Typography"
 
+// 样式
+const sxOneLine: SxProps<Theme> = {
+  display: "block",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap"
+}
+
 // 删除项目
 const handleDel = async (basic: app.Basic, props: DoLItemProps,
                          showSb: (ps: DoSnackbarProps) => void,
@@ -53,7 +61,7 @@ const getAppInfo = async (basic: app.Basic,
     isNewAdded: isNewAdded,
     primary: <Stack direction={"row"} justifyContent={"space-between"}>
       <Button color={"inherit"} href={status.viewURL || ""} target="_blank"
-              sx={{padding: 0, margin: 0, minWidth: 0}}>{status.name}</Button>
+              sx={{padding: 0, margin: 0, ...sxOneLine}}>{status.name}</Button>
       <Typography sx={{color: "#888"}}>{status.formattedPrice}</Typography>
     </Stack>,
     secondary: <p className={"overflow-hide-line-one"} title={status.description}>{status.description}</p>,

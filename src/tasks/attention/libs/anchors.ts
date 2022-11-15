@@ -19,7 +19,7 @@ export namespace anchor {
 
   // 主播平台
   // 此处的值需与 StatusUtils 中的属性对应，包括大小写
-  export type Plat = "bili" | "douyin" | "douyu" | "huya"
+  export type Plat = keyof typeof StatusUtils
 
   // 主播的基础信息
   export class Basic {
@@ -41,20 +41,23 @@ export namespace anchor {
 
   // 主播的状态信息（需联网获取）
   export class Status {
-    // 头像
-    avatar?: string
-    // 直播页面
-    liveUrl: string
     // 主播名/房间名
     name: string
+    // 直播页面
+    liveUrl: string
+    // 流地址
+    streamUrl?: string
     // 是否在线，0：离线；1：在线：2：录播/回放
     online?: number
     // 直播间的标题
     title?: string
+    // 头像
+    avatar?: string
 
-    constructor({avatar, liveUrl, name, online, title}: Status) {
+    constructor({avatar, liveUrl, name, online, title, streamUrl}: Status) {
       this.avatar = avatar
       this.liveUrl = liveUrl
+      this.streamUrl = streamUrl
       this.name = name
       this.online = online
       this.title = title
@@ -191,69 +194,20 @@ export namespace anchor {
        * 获取主播的状态信息
        * @param basic 主播的基础信息
        * @return 主播的详细信息
-       * @see https://github.com/wbt5/real-url/blob/master/douyin.py
-       * @see https://github.com/linpinger/livedownloader/blob/master/DouYin_Live.ahk
        */
       check: async (basic: Basic): Promise<Status> => {
-        // 优先以主播的新ID获取信息
-        let url = "https://webcast-hl.amemv.com/webcast/room/reflow/info/?app_id=1128&live_id=1&room_id=" +
-          (basic.idNew || basic.id)
+        let url = `http://127.0.0.1:8800/api/lives/douyin/live?sec_uid=${basic.id}`
         let resp = await request(url)
-        let text = await resp.text()
-
-        let getNot = (id: string = "") => {
-          return new Status({
-            name: "获取的主播信息为空",
-            title: `${basic.plat} ${basic.id}`,
-            liveUrl: `https://www.douyin.com/${id}`
-          })
-        }
-
-        // 获取的内容可能为空，不能直接用 json() 解析，需要先判断
-        if (text === "") {
-          console.log(TAG, `${basic.plat} 获取主播(${basic.idNew || basic.id})的信息为空`)
-          return getNot()
-        }
-
-        // 解析数据
-        let result = JSON.parse(text)
-
-        if (!result?.data?.room) {
-          console.log(TAG, `${basic.plat} 不存在该主播 ${basic.idNew || basic.id}`)
-          return getNot(result?.data?.room?.owner?.sec_uid || "未知用户")
-        }
-
-        let name = result?.data?.room?.owner?.nickname
-        let ownRoom = result?.data?.room?.owner?.own_room
-
-        // 因为主播的房间号经常自动改变，不过返回的信息里有新的的房间号，所以新号码再次请求
-        if (ownRoom && (basic.idNew || basic.id) !== ownRoom.room_ids_str[0]) {
-          basic.idNew = result.data.room.owner.own_room.room_ids_str[0]
-          console.log(TAG, `抖音主播"${name}"的房间ID已更新为"${basic.idNew}"，将重新获取直播流`)
-          return await StatusUtils[basic.plat].check(basic)
-        }
-
-        // data.room.status: 4:off, 2:on, 3:可能是暂时离开
-        // 或者包含own_room(且room_ids与room_id相等)表示在线
-        // room.status的判断并不准确
-        // let status = result.data.room.status
-        // 因为room_ids中的房间号为长整数而被截断，导致无法正确地与room_ids_str中的字符串房间号进行比较
-        // let status = !(!own_room || own_room.room_ids[0].toString() !== own_room.room_ids_str[0])
-        let status = ownRoom ? 1 : 0
-
-        // 在本人网络环境中，hls_pull_url 不卡，而rtmp_pull_url很卡，但是rtmp的延时比hls低
-        // let liveURL = result.data.room.stream_url.flv_pull_url.FULL_HD1
-        // liveURL = liveURL ? liveURL : result.data.room.stream_url.rtmp_pull_url
-        let liveURL = result.data.room.stream_url.hls_pull_url
-        let title = result.data.room.owner?.signature || result.data.room.title
-        let avatar = result.data.room.owner?.avatar_thumb.url_list[0]
+        let obj = await resp.json()
+        let data: Status = obj.data
 
         return new Status({
-          avatar: avatar,
-          liveUrl: "potplayer://" + liveURL,
-          name: name,
-          online: status,
-          title: title
+          avatar: data.avatar,
+          liveUrl: data.liveUrl || `https://live.douyin.com/${basic.id}`,
+          streamUrl: data.streamUrl,
+          name: data.name || "[缺少数据]",
+          online: data.online,
+          title: data.title
         })
       }
     }

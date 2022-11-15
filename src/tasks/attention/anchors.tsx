@@ -16,6 +16,14 @@ import {IconButton, Switch} from "@mui/material"
 import Stack from "@mui/material/Stack"
 import HighlightOffOutlinedIcon from '@mui/icons-material/HighlightOffOutlined'
 
+// 样式
+const sxOneLine: SxProps<Theme> = {
+  display: "block",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap"
+}
+
 // 排序规则
 const sortRules: Function[] = [anchor.Sorts.isMarked]
 
@@ -56,7 +64,7 @@ const getAnchorInfo = async (basic: anchor.Basic,
     isMarked: status.online === 1,
     isNewAdded: isNewAdded,
     primary: <Button color={"inherit"} href={status.liveUrl} target="_blank"
-                     sx={{padding: 0, margin: 0, minWidth: 0}}>{status.name}</Button>,
+                     sx={{padding: 0, margin: 0, ...sxOneLine}}>{status.name}</Button>,
     secondary: <p className={"overflow-hide-line-one"} title={status.title}>{status.title}</p>,
     extra: <Stack>
       <IconButton title={"删除"} onClick={_ => handleDel(basic, props, showSb, setInfos)}>
@@ -125,7 +133,7 @@ const Anchors = (props: { sx?: SxProps<Theme> }): JSX.Element => {
         {title: "虎牙", value: "huya"},
         {title: "斗鱼", value: "douyu"},
         {title: "哔哩", value: "bili", tip: "主播的 UID，不是房间号"},
-        {title: "抖音", value: "douyin", tip: "主播的 直播间号(如'6959169539363949319')，不是抖音号、ID"}
+        {title: "抖音", value: "douyin", tip: "主播的sec uid(在主页地址中，如'Wfd-rR..REs')，不是抖音号、UID"}
       ]
     }],
     placeholder: "主播的 ID、房间号",

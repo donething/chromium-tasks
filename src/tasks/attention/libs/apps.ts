@@ -10,7 +10,7 @@ export namespace app {
 
   // 应用平台
   // 此处的值需与 StatusUtils 中的属性对应，包括大小写
-  export type Plat = "appstore" | "playstore"
+  export type Plat = keyof typeof StatusUtils
 
   // 应用地区
   export type Area = "CN" | "US"
