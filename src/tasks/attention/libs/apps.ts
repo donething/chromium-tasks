@@ -1,5 +1,5 @@
 // 应用的工具类
-import {request, WXQiYe, notify} from "do-utils"
+import {request, WXQiYe, notify, truncateStr} from "do-utils"
 import IconAppstore from "../../../icons/appstore.svg"
 import IconPlaystore from "../../../icons/playstore.svg"
 import {pushCardMsg} from "../../../comm/push"
@@ -192,12 +192,12 @@ export namespace app {
         }
 
         // 应用已免费，发送通知
-        console.log(TAG, `关注的应用"${status.name}"(${status.trackId}) 已免费`)
+        console.log(TAG, `关注的应用已免费 ${status.name}(${status.trackId})`)
 
         let ops: chrome.notifications.NotificationOptions = {
           type: "basic",
-          title: "关注的应用 已免费",
-          message: `"${status.name}"(${basic.id})`,
+          title: "关注的应用已免费",
+          message: `${status.name}(${truncateStr(basic.id, 20)})`,
           iconUrl: "/icons/extension_128.png",
           buttons: [{title: "打开"}, {title: "取消"}]
         }

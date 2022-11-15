@@ -1,4 +1,4 @@
-import {request, notify} from "do-utils"
+import {request, notify, truncateStr} from "do-utils"
 import IconHuya from "../../../icons/huya.svg"
 import IconDouyu from "../../../icons/douyu.svg"
 import IconDouyin from "../../../icons/douyin.svg"
@@ -332,7 +332,7 @@ export namespace anchor {
             let ops: chrome.notifications.NotificationOptions = {
               type: "basic",
               title: "关注的主播已开播",
-              message: `"${status.name}"(${basic.id})`,
+              message: `${status.name}(${truncateStr(basic.id, 20)})`,
               iconUrl: "/icons/extension_128.png",
               buttons: [{title: "打开"}, {title: "取消"}]
             }
