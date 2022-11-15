@@ -25,7 +25,7 @@ const sxOneLine: SxProps<Theme> = {
 }
 
 // 排序规则
-const sortRules: Function[] = [anchor.Sorts.isMarked]
+const sortRules: Function[] = [anchor.Sorts.isMarked, anchor.Sorts.id]
 
 // 删除项目
 const handleDel = async (basic: anchor.Basic,

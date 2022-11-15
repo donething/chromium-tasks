@@ -4,6 +4,7 @@ import IconAppstore from "../../../icons/appstore.svg"
 import IconPlaystore from "../../../icons/playstore.svg"
 import {pushCardMsg} from "../../../comm/push"
 import type {AItemType} from "../attentions"
+import type {DoLItemProps} from "do-comps"
 
 export namespace app {
   const TAG = "[Apps]"
@@ -74,6 +75,30 @@ export namespace app {
       this.trackId = trackId
       this.version = version
       this.viewURL = viewURL
+    }
+  }
+
+  // 多条件排序函数
+  // 可按需修改 比较的内容
+  export const Sorts = {
+    // 比较函数
+    // 返回-1表示a排在b前面，返回1表示b排在a前面，返回0表示还无法判断顺序
+
+    // 根据是否被标记排序，被标记的排在前面
+    isMarked: (a: DoLItemProps, b: DoLItemProps) => {
+      // 状态相同则无法判断结果
+      if (a.isMarked === b.isMarked) {
+        return 0
+      }
+
+      // 其它情况得到排序结果
+      if (a.isMarked) return -1
+      if (b.isMarked) return 1
+    },
+
+    // 根据 ID(平台_用户ID) 排序
+    id: (a: DoLItemProps, b: DoLItemProps) => {
+      return a.id.toString().localeCompare(b.id.toString())
     }
   }
 

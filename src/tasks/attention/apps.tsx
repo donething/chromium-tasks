@@ -25,6 +25,9 @@ const sxOneLine: SxProps<Theme> = {
   whiteSpace: "nowrap"
 }
 
+// 排序规则
+const sortRules: Function[] = [app.Sorts.isMarked, app.Sorts.id]
+
 // 删除项目
 const handleDel = async (basic: app.Basic, props: DoLItemProps,
                          showSb: (ps: DoSnackbarProps) => void,
@@ -118,7 +121,7 @@ const Apps = (props: { sx?: SxProps<Theme> }): JSX.Element => {
 
     // 获取信息详情以显示
     let props = await getAppInfo(basic, setInfos, showSb, true)
-    setInfos(oldArray => insertOrdered(oldArray, props, []))
+    setInfos(oldArray => insertOrdered(oldArray, props, sortRules))
   }
 
   // 添加面板的属性
@@ -154,7 +157,7 @@ const Apps = (props: { sx?: SxProps<Theme> }): JSX.Element => {
       // 获取状态并显示
       apps.list?.map(async basic => {
         getAppInfo(basic, setInfos, showSb).then(props =>
-          setInfos(oldArray => insertOrdered(oldArray, props, [])))
+          setInfos(oldArray => insertOrdered(oldArray, props, sortRules)))
       })
     }
 
