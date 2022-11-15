@@ -1,6 +1,8 @@
 import {sleep, request, notify, gbk2UTF8, random} from "do-utils"
 import cheerio from "cheerio"
 
+const iconUrl = chrome.runtime.getURL("/icons/extension_128.png")
+
 // 存储到 chromium storage sync 的数据：tasks.ccmnn
 export declare interface CcmnnSets {
   // 最近一次运行日期
@@ -51,11 +53,7 @@ export const CCmnn = {
     let formhash = await this.getHash()
     if (formhash === "") {
       console.log(this.TAG, "获取formhash失败")
-      notify({
-        title: this.TAG,
-        message: "获取formhash失败，可打开控制台查看信息",
-        iconUrl: chrome.runtime.getURL("/icons/extension_48.png")
-      })
+      notify({title: this.TAG, message: "获取formhash失败，可打开控制台查看信息", iconUrl: iconUrl})
       return
     }
 
@@ -74,7 +72,7 @@ export const CCmnn = {
       let ops = {
         title: this.TAG,
         message: "签到失败，可打开控制台查看信息",
-        iconUrl: chrome.runtime.getURL("/icons/extension_48.png"),
+        iconUrl: iconUrl,
         buttons: [{title: "打开"}, {title: "取消"}]
       }
       notify(ops, [() => chrome.tabs.create({url: "https://club.ccmnn.com/"})])
@@ -202,11 +200,7 @@ export const CCmnn = {
 
           let idstr = $(item).closest("tbody").attr("id")
           if (!idstr) {
-            notify({
-              title: this.TAG,
-              message: "无法提取到帖子的ID",
-              iconUrl: chrome.runtime.getURL("/icons/extension_48.png")
-            })
+            notify({title: this.TAG, message: "无法提取到帖子的ID", iconUrl: iconUrl})
             console.log(this.TAG, "无法提取到帖子的ID", text)
             return
           }
@@ -303,27 +297,15 @@ export const CCmnn = {
       return 101
     } else if (respStr.indexOf("含有非法字符") >= 0) {
       console.log(this.TAG, `回复帖子"${id}"失败：当前的访问请求当中含有非法字符，已经被系统拒绝`)
-      notify({
-        title: this.TAG,
-        message: "回帖失败，可打开控制台查看信息",
-        iconUrl: chrome.runtime.getURL("/icons/extension_48.png")
-      })
+      notify({title: this.TAG, message: "回帖失败，可打开控制台查看信息", iconUrl: iconUrl})
       return 10
     } else if (respStr.indexOf("登录后") >= 0) {
       console.log(this.TAG, `回复帖子"${id}"失败：需要登录（回复一次帖子）`)
-      notify({
-        title: this.TAG,
-        message: "回帖失败，可打开控制台查看信息",
-        iconUrl: chrome.runtime.getURL("/icons/extension_48.png")
-      })
+      notify({title: this.TAG, message: "回帖失败，可打开控制台查看信息", iconUrl: iconUrl})
       return 11
     } else {
       console.log(this.TAG, `回复帖子"${id}"失败："${respStr}"`)
-      notify({
-        title: this.TAG,
-        message: "回帖失败，可打开控制台查看信息",
-        iconUrl: chrome.runtime.getURL("/icons/extension_48.png")
-      })
+      notify({title: this.TAG, message: "回帖失败，可打开控制台查看信息", iconUrl: iconUrl})
       return 100
     }
   },
@@ -339,11 +321,7 @@ export const CCmnn = {
       let text = gbk2UTF8(await resp.arrayBuffer())
       if (text.indexOf("论坛首页") === -1) {
         console.log(this.TAG, "发表说说失败：", text)
-        notify({
-          title: this.TAG,
-          message: "发表说说失败，可打开控制台查看信息",
-          iconUrl: chrome.runtime.getURL("/icons/extension_48.png")
-        })
+        notify({title: this.TAG, message: "发表说说失败，可打开控制台查看信息", iconUrl: iconUrl})
         return
       }
 
@@ -360,11 +338,7 @@ export const CCmnn = {
       let text = gbk2UTF8(await resp.arrayBuffer())
       if (text.indexOf("个人空间") === -1) {
         console.log(this.TAG, "访问别人的空间失败：", text)
-        notify({
-          title: this.TAG,
-          message: "访问别人的空间失败，可打开控制台查看信息",
-          iconUrl: chrome.runtime.getURL("/icons/extension_48.png")
-        })
+        notify({title: this.TAG, message: "访问别人的空间失败，可打开控制台查看信息", iconUrl: iconUrl})
         return
       }
 
@@ -389,11 +363,7 @@ export const CCmnn = {
 
     if (text.indexOf("最小单位还不满") < 0 && text.indexOf("操作成功") < 0) {
       console.log(this.TAG, "领取矿场金币出错：", text)
-      notify({
-        title: this.TAG,
-        message: "领取矿场金币出错，可打开控制台查看信息",
-        iconUrl: chrome.runtime.getURL("/icons/extension_48.png")
-      })
+      notify({title: this.TAG, message: "领取矿场金币出错，可打开控制台查看信息", iconUrl: iconUrl})
       return
     }
 
