@@ -203,7 +203,7 @@ export namespace anchor {
 
         return new Status({
           avatar: data.avatar,
-          liveUrl: data.liveUrl || `https://www.douyin.com/user/${basic.id}`,
+          liveUrl: data.online === 1 ? data.liveUrl : `https://www.douyin.com/user/${basic.id}`,
           streamUrl: data.streamUrl,
           name: data.name || "[缺少数据]",
           online: data.online,
