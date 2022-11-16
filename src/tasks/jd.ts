@@ -1,40 +1,24 @@
-// 领取京东的京豆
+/**
+ * 京东下单
+ * 暂不可用！只能成功加入购物车，无法自动下单。
+ * 暂时还得用 chromium-ext 的扩展功能下单
+ */
+
 import {request} from "do-utils"
 import {pushCardMsg} from "../comm/push"
 import {notify} from "do-utils"
+import cheerio from "cheerio"
+
+const iconUrl = chrome.runtime.getURL("/icons/extension_48.png")
 
 export const JD = {
   TAG: "[JD]",
 
-  sign: async function () {
-    let total = 0
-    // 签到的京豆
-    let url = "https://api.m.jd.com/client.action?functionId=signBeanIndex&" +
-      "body=%7B%22monitor_refer%22%3A%22%22,%22rnVersion%22%3A%223.9%22,%22fp%22%3A%22-1%22," +
-      "%22shshshfp%22%3A%22-1%22,%22shshshfpa%22%3A%22-1%22,%22referUrl%22%3A%22-1%22," +
-      "%22userAgent%22%3A%22-1%22,%22jda%22%3A%22-1%22,%22monitor_source%22%3A%22bean_m_bean_index%22%7D&" +
-      "appid=ld&client=android&clientVersion=null&networkType=null&osVersion&uuid=null&" +
-      `jsonp=jsonp_${Date.now()}_89861`
-    let resp = await request(url)
-    let result = await resp.json()
-    let dataStr = result.body.substring(result.body.indexOf("(") + 1, result.body.lastIndexOf(")"))
-    let obj = JSON.parse(dataStr)
-    if (obj.data.dailyAward.title === "签到成功") {
-      total += parseInt(obj.data.dailyAward.beanAward.beanCount)
-    } else if (obj.data.dailyAward.title === "今天已签到") {
-      // 重复签到
-    } else {
-      console.log(this.TAG, "领取签到的京豆出错：", result.body)
-    }
-
-    // 转盘
-  },
-
   /**
    * 订购商品
-   * @param pid 商品 ID
-   * @param area 地区编号
-   * @description 参数获取：打开 Chrome console，刷新商品页面，按`Ctrl+Shift+F`，输入"stock"后回车搜索
+   * @param pid 商品 ID。商品页面的地址栏中的一串数字
+   * @param area 地区编号。获取参数：进入商品页面，打开 Chrome console，选择“网络”标签，刷新页面，
+   * 在请求地址列表栏，输入"stock"后回车搜索，找到"stocks?callback=..."的请求，地区ID就在URL内
    * @see https://github.com/shaodahong/dahong/issues/13
    */
   order: async function (pid: string, area: string) {
@@ -49,37 +33,63 @@ export const JD = {
       console.log(this.TAG, "商品还没货，无法购买", pURL)
       return
     }
+
     if (stockObj.stockInfo.stockDesc.indexOf("有货") === -1) {
       console.log(this.TAG, "检查商品有货时出错：", pURL, stockObj)
-      pushCardMsg(`${this.TAG} 检查商品有货时出错`, JSON.stringify(stockObj, null, 2),
-        pURL, "查看商品")
+      pushCardMsg(`${this.TAG} 检查商品有货时出错`,
+        JSON.stringify(stockObj, null, 2), pURL, "查看商品")
       return
     }
+
     // 有货
     console.log(this.TAG, "关注的商品已有货：", pURL)
-    chrome.tabs.create({url: `https://cart.jd.com/gate.action?pid=${pid}&pcount=1&ptype=1`})
-    notify({
-      title: "关注的商品已有货",
-      message: "可以去购买了",
-      iconUrl: chrome.runtime.getURL("/icons/extension_48.png"),
-      buttons: [{title: "查看商品"}]
-    }, [() => chrome.tabs.create({url: pURL})])
-
-    pushCardMsg(`${this.TAG} 关注的商品已有货`, "可以去购买了", pURL, "查看商品")
-    return
-
 
     // 加入购入车
-    let toCartURL = `https://cart.jd.com/tproduct?pid=${pid}&rid=${Math.random()}`
+    let toCartURL = `https://cart.jd.com/gate.action?pid=${pid}&pcount=1&ptype=1`
     let toCardResp = await request(toCartURL, {})
-    let toCardObj = await toCardResp.json()
-    if (toCardObj && toCardObj.success && toCardObj.lastAddedSku) {
-      console.log(this.TAG, `已将“${toCardObj.lastAddedSku.name}”加入购物车`, pURL)
+    let toCardText = await toCardResp.text()
+
+    if (toCardText.indexOf("商品已成功加入购物车") >= 0) {
+      console.log(this.TAG, `商品已加入购物车`, pURL)
     } else {
-      console.log(this.TAG, `将商品加入购入车时出错`, pURL, toCardObj)
-      pushCardMsg(`${this.TAG} 将商品加入购入车时出错`, JSON.stringify(toCardObj, null, 2),
-        pURL, "查看商品")
+      console.log(this.TAG, `将商品加入购入车时出错`, pURL, toCardText)
+      pushCardMsg(`${this.TAG} 将商品加入购入车时出错`, "请注意", pURL, "查看商品")
       return
     }
-  },
+
+    notify({
+        title: "关注的商品已加入购物车",
+        message: "需要手动下订单。注意订单总金额！",
+        iconUrl: iconUrl,
+        buttons: [{title: "去下订单"}]
+      }, [() =>
+        chrome.tabs.create({url: "https://trade.jd.com/shopping/order/getOrderInfo.action"})
+      ]
+    )
+    // pushCardMsg(`${this.TAG} 关注的商品已有货`, "可以去购买了", pURL, "查看商品")
+
+    // 订单信息
+    let orderInfoUrl = "https://trade.jd.com/shopping/order/getOrderInfo.action"
+    let orderInfoResp = await request(orderInfoUrl)
+    let $ = cheerio.load(await orderInfoResp.text())
+    let goodsName = $(".goods-msg .p-name a").first().text().trim()
+    let payment = $("span#sumPayPriceId").text().trim()
+    let sendAddr = $("span#sendAddr").text().trim()
+    let sendMobile = $("span#sendMobile").text().trim()
+    console.log(this.TAG, "=========== 订单详情 ===========")
+    console.log(this.TAG, "商品名：", goodsName)
+    console.log(this.TAG, "总金额：", payment)
+    console.log(this.TAG, sendAddr)
+    console.log(this.TAG, sendMobile)
+
+    // 购买
+    let toOrderUrl = `https://trade.jd.com/shopping/order/submitOrder.action`
+    let toOrderResp = await request(toOrderUrl, "overseaPurchaseCookies=&vendorRemarks=[]&" +
+      "submitOrderParam.sopNotPutInvoice=false&submitOrderParam.trackID=TestTrackId&" +
+      "presaleStockSign=1&submitOrderParam.ignorePriceChange=0&submitOrderParam.btSupport=0&" +
+      "submitOrderParam.fp=28972dbf189e87d45b52d0cfe187f64a&" +
+      "submitOrderParam.jxj=1&submitOrderParam.zpjd=1")
+    let toOrderObj = await toOrderResp.json()
+    console.log(this.TAG, "下单结果", toOrderObj)
+  }
 }

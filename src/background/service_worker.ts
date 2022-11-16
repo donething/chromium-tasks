@@ -2,6 +2,7 @@ import {anchor} from "../tasks/attention/libs/anchors"
 import {app} from "../tasks/attention/libs/apps"
 import {HDSay} from "../tasks/hdsay"
 import {CCmnn} from "../tasks/ccmnn"
+import {JD} from "../tasks/jd"
 
 // 监听定时
 chrome.alarms.onAlarm.addListener(async alarm => {
@@ -31,8 +32,8 @@ chrome.alarms.onAlarm.addListener(async alarm => {
       chrome.alarms.create(CCmnn.TAG_EN, {delayInMinutes: 1})
       break
     case "jd":
-      console.log(CCmnn.TAG, `开始执行"${CCmnn.TAG_EN}"周期的任务`)
-      chrome.tabs.create({url: "https://cart.jd.com/cart_index"})
+      console.log(JD.TAG, `开始执行JD定时任务`)
+      await JD.order("10061537500663", "19_1607_47387_59093")
       break
   }
 })
@@ -46,7 +47,7 @@ chrome.runtime.onInstalled.addListener(async () => {
   chrome.alarms.create("halfhour", {delayInMinutes: 1, periodInMinutes: 30})
 
   // 定时执行
-  chrome.alarms.create("jd", {when: new Date("2022/04/01 10:00:00").getTime()})
+  // chrome.alarms.create("jd", {when: new Date("2022/04/01 10:00:00").getTime()})
 })
 
 // 每次运行浏览器时执行
