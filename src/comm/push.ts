@@ -46,7 +46,7 @@ export const pushTextMsg = async (title: string, content: string) => {
     return
   }
 
-  let error = await wxPush.pushText(agentid, content)
+  let error = await wxPush.pushText(agentid, `${title}\n\n${content}`)
   if (error) {
     console.log("推送微信文本消息失败", error)
     notify({title: "推送微信文本消息失败", message: error.message, iconUrl: iconUrl})
