@@ -65,7 +65,7 @@ const getAnchorInfo = async (basic: anchor.Basic,
     isNewAdded: isNewAdded,
     primary: <Button color={"inherit"} href={status.liveUrl} target="_blank"
                      sx={{padding: 0, margin: 0, ...sxOneLine}}>{status.name}</Button>,
-    secondary: <p className={"overflow-hide-line-one"} title={status.title}>{status.title}</p>,
+    secondary: <p className={"line-1"} title={status.title}>{status.title}</p>,
     extra: <Stack>
       <IconButton title={"删除"} onClick={_ => handleDel(basic, props, showSb, setInfos)}>
         <HighlightOffOutlinedIcon opacity={0.3}/>

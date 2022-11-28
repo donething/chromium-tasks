@@ -67,7 +67,7 @@ const getAppInfo = async (basic: app.Basic,
               sx={{padding: 0, margin: 0, ...sxOneLine}}>{status.name}</Button>
       <Typography sx={{color: "#888"}}>{status.formattedPrice}</Typography>
     </Stack>,
-    secondary: <p className={"overflow-hide-line-one"} title={status.description}>{status.description}</p>,
+    secondary: <p className={"line-1"} title={status.description}>{status.description}</p>,
     extra: <Stack>
       <IconButton title={"删除"} onClick={_ => handleDel(basic, props, showSb, setInfos)}>
         <HighlightOffOutlinedIcon opacity={0.3}/>

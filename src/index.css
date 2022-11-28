@@ -1,19 +1,20 @@
 
-body {
+html, body {
+  width: 100%;
+  height: 100%;
   margin: 0;
   padding: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-  "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-  sans-serif;
+  "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
   background-color: #F8F8F5;
+  font-size: 95%;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-  monospace;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
 }
 
 ul, li {
@@ -22,25 +23,66 @@ ul, li {
   margin: 0;
 }
 
-/* 文本：一行，溢出部分不显示 */
-.overflow-hide-line-one {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  /* 文本只显示一行时用"nowrap" */
-  white-space: nowrap;
+/* 图片：避免超出父容器 */
+img {
+  max-width: 100%;
 }
 
 a {
+  color: #222;
   text-decoration: none;
-  color: #333
 }
 
-.row-list a:visited {
-  color: #888;
+a.link:visited {
+  color: #afb9c1;
 }
 
-.row-list a:hover {
+a.link:hover {
   color: #40a9ff;
+}
+
+.author {
+  font-weight: bold;
+  color: #778087;
+}
+
+a.author:hover {
+  color: #40a9ff;
+}
+
+.title {
+  color: #222;
+  font-weight: 400;
+  word-break: break-all;
+  width: fit-content;
+}
+
+.text {
+  color: #222;
+  word-break: break-all;
+}
+
+.desp {
+  color: #888;
+  word-break: break-all;
+}
+
+.extra {
+  color: #ccc;
+}
+
+.line-1 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  overflow: hidden;
+}
+
+.line-2 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
 }
 
 /* 行布局，可换行，子项目横向间隔平均 */
@@ -53,4 +95,16 @@ a {
 /* 子项目最后一列左对齐 */
 .row-item:last-child {
   margin-right: auto;
+}
+
+/* 滚动中需要固定在顶部的元素 */
+.sticky {
+  position: sticky;
+  top: 0;
+  /* 必要，否则会被下面的 class .mask 的元素挡住 */
+  z-index: 1000;
+  padding: 3px 0;
+  font-weight: bold;
+  background: #FFFFFF;
+  color: rgba(0, 0, 0, 0.85);
 }

@@ -10,9 +10,11 @@ import PicTasksComp from "./tasks/pics_dl/pic_tasks"
 import {Zuji} from "./tasks/zuji/zuji"
 import {ThemeProvider} from "@mui/material"
 import DoTheme from "./comm/DoTheme"
-import MatchesComp from "./tasks/matches/matches"
+import MatchesComp from "./pages/matches/matches"
 import './index.css'
-import DYSTabs from "./tasks/dys"
+import DYSTabs from "./pages/dys/dys"
+import V2exTopics from "./pages/v2ex/topics"
+import ViewV2Topic from "./pages/v2ex/viewTopic"
 
 const container = document.getElementById('root')
 const root = createRoot(container!)
@@ -34,6 +36,8 @@ root.render(
           <Route path="/pic_tasks" element={<PicTasksComp/>}/>
           <Route path="/zuji" element={<Zuji/>}/>
           <Route path="/dys" element={<DYSTabs/>}/>
+          <Route path="/v2ex" element={<V2exTopics/>}/>
+          <Route path="/view_topic" element={<ViewV2Topic/>}/>
         </Routes>
       </HashRouter>
     </ThemeProvider>
