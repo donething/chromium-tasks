@@ -174,7 +174,7 @@ const ReplyItem = React.memo((ps: { reply: Reply, index: number, authorID: numbe
         <div className={"text"} dangerouslySetInnerHTML={{__html: ps.reply.content_rendered}}/>
       </Stack>
 
-      <Box className={"extra"} component={"span"} marginLeft={"auto"} marginRight={1}>#{ps.index}</Box>
+      <Box className={"extra"} component={"span"} marginLeft={"auto"} marginRight={2}>#{ps.index}</Box>
     </Stack>
   )
 })

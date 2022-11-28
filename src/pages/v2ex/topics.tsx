@@ -21,14 +21,19 @@ const TopicItem = React.memo((ps: Topic) => {
       <Stack marginLeft={2}>
         {/* 链接中加入回复数量，可以在点击浏览后有新回复时，颜色恢复为未点击的状态 */}
         <a className={"title link line-1"} href={`/index.html#/view_topic?tid=${ps.id}&c=${ps.replies}`}
-           onMouseDown={e => {
-             /* 不能用`onMouseUp`，否则会同时触发`onMouseDown`，导致`a`的点击事件。即使用`e.preventDefault()`也不能避免 */
-             // 传递数据并打开新窗口
-             if (e.button === 0 || e.button === 1) {
-               e.preventDefault()
-               window.viewedTopic = ps
-               window.open(`/index.html#/view_topic?tid=${ps.id}`)
-             }
+           onClick={e => {
+             // 只适配了左键的单击事件，中键单击还是打开Link的href
+             // 如果都适配需要用 onMouseDown 而不能用 onMouseUp（此时会同时触发点击Link的事件）
+             e.preventDefault()
+             // 模拟设置已访问该链接，以符合、使用css属性
+             // 由于`replaceState`会替换地址栏的URL，需要先保存当前URL，设置访问指定URL后，再替换回来
+             let culUrl = window.location.href
+             history.replaceState({}, "", (e.target as HTMLLinkElement).href)
+             history.replaceState({}, "", culUrl)
+
+             // 传递数据，并打开新窗口
+             window.viewedTopic = ps
+             window.open(`/index.html#/view_topic?tid=${ps.id}`)
            }}>{ps.title}
         </a>
 
