@@ -78,8 +78,11 @@ const Slider = React.memo((ps: {
   const setPage = React.useCallback((step: number) => ps.setPageMap(prev => {
     // 初始没有 page 属性，设为 1
     let page = prev[ps.tabCurrent] || 1
-    // 页数不能为 0
-    page = (page + step) || 1
+    // 页数不能小于 1
+    page = page + step
+    if (page < 1) {
+      page = 1
+    }
 
     return {...prev, [ps.tabCurrent]: page}
   }), [ps.tabCurrent])
@@ -90,7 +93,7 @@ const Slider = React.memo((ps: {
       <IconButton title={"上一页"} disabled={!ps.pageMap[ps.tabCurrent] || ps.pageMap[ps.tabCurrent] === 1}
                   onClick={() => setPage(-1)}><ArrowUpwardOutlinedIcon/></IconButton>
 
-      <Typography title={"当前页数"} fontSize={"1.2em"} textAlign={"center"}>
+      <Typography title={"当前页数"} fontSize={"1.2em"} fontWeight={600} textAlign={"center"}>
         {ps.pageMap[ps.tabCurrent] || 1}
       </Typography>
 
