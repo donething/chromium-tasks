@@ -1,6 +1,6 @@
-import {Avatar, Box, Button, IconButton, Stack, Tab, Tabs, Typography} from "@mui/material"
+import {Avatar, Box, Button, IconButton, Stack, SxProps, Tab, Tabs, Typography} from "@mui/material"
 import React from "react"
-import {date, request} from "do-utils"
+import {date, request, trunStrBegin} from "do-utils"
 import type {Topic, TopicBasic} from "./types"
 import {useSharedDialog, useSharedSnackbar} from "do-comps"
 import ReplayOutlinedIcon from '@mui/icons-material/ReplayOutlined'
@@ -8,7 +8,19 @@ import ArrowUpwardOutlinedIcon from "@mui/icons-material/ArrowUpwardOutlined"
 import ArrowDownwardOutlinedIcon from "@mui/icons-material/ArrowDownwardOutlined"
 import TuneOutlinedIcon from "@mui/icons-material/TuneOutlined"
 import {get, Loading} from "./comm"
-import V2exSettings, {CS_KEY_V2EX_TOPICS, V2exSets} from "./settings"
+import V2exSettings, {CS_KEY_V2EX_TOPICS, V2exNodeItem, V2exSets} from "./settings"
+
+// Tab 项的样式
+// 长文本显示省略号无效，只好用 trunStr() 截断
+const sxTab: SxProps = {
+  maxWidth: "90px",
+  minWidth: "auto",
+  whiteSpace: "nowrap",
+  textOverflow: "ellipsis",
+  overflow: "hidden",
+  textAlign: "left",
+  alignItems: "flex-start"
+}
 
 // 主题项
 const TopicItem = React.memo((ps: Topic) => {
@@ -93,7 +105,7 @@ const Slider = React.memo((ps: {
  */
 const V2exTopics = React.memo(() => {
   // 标签信息，键值为：标签名、标签标题。如 {qna: "问与答"}
-  const [tabMap, setTabMap] = React.useState<{ [name: string]: string }>({})
+  const [tabList, setTabList] = React.useState<V2exNodeItem[]>([])
   // 当前被选择的 Tab 的键。如 "qna"
   const [tabCurrent, setTabCurrent] = React.useState("")
 
@@ -114,9 +126,9 @@ const V2exTopics = React.memo(() => {
   }, [])
 
   // 所有标签
-  const tabs = React.useMemo(() =>
-    Object.entries(tabMap).map(([key, value], index) =>
-      <Tab label={value} value={key} defaultChecked={index === 0}/>), [tabMap])
+  const tabs = React.useMemo(() => tabList.map(tab =>
+      <Tab label={trunStrBegin(tab.title, 4)} value={tab.name} title={tab.title} sx={{...sxTab}}/>),
+    [tabList])
 
   // 所有主题
   const allTopics = React.useMemo(() => topicsMap[tabCurrent]?.map(t => <TopicItem
@@ -127,10 +139,10 @@ const V2exTopics = React.memo(() => {
     let storage = await chrome.storage.sync.get({[CS_KEY_V2EX_TOPICS]: {}})
     let sets: V2exSets = storage[CS_KEY_V2EX_TOPICS]
     if (sets.nodes) {
-      setTabMap(sets.nodes)
+      setTabList(sets.nodes)
     } else {
-      console.log("请先添加节点信息")
-      showSb({open: true, message: "请先添加节点信息", severity: "info"})
+      console.log("请先在设置中添加节点")
+      showSb({open: true, message: "请先在设置中添加节点", severity: "info"})
     }
   }
 
@@ -197,8 +209,8 @@ const V2exTopics = React.memo(() => {
 
   // 初始化后，设置默认标签，显示数据
   React.useEffect(() => {
-    setTabCurrent(Object.keys(tabMap)[0])
-  }, [tabMap])
+    tabList.length !== 0 && setTabCurrent(tabList[0].name)
+  }, [tabList])
 
   // 负责获取首次的数据
   React.useEffect(() => {
@@ -227,7 +239,7 @@ const V2exTopics = React.memo(() => {
     <Stack sx={{width: "50%", height: "100vh", margin: "0 auto", bgcolor: "#FFF"}}>
       {/* Tab 标签 */}
       <Box width={"100%"} flex={"0 1 auto"} borderColor={"divider"}>
-        <Tabs value={tabCurrent} onChange={handleChange} centered={true}>{tabs}</Tabs>
+        <Tabs value={tabCurrent} onChange={handleChange} variant="scrollable">{tabs}</Tabs>
       </Box>
 
       {/* 主题列表 */}
