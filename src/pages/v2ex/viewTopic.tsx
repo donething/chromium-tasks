@@ -164,7 +164,7 @@ const ReplyItem = React.memo((ps: { reply: Reply, index: number, authorID: numbe
       <Avatar src={ps.reply.member.avatar || ps.reply.member.avatar_large} variant={"rounded"}
               sx={{marginTop: 1, marginLeft: 2, alignSelf: "flex-start"}}/>
 
-      <Stack marginLeft={2} marginRight={2} gap={1}>
+      <Stack marginLeft={2} gap={1}>
         <Stack className={"extra"} direction={"row"} alignItems={"center"} gap={2} fontSize={"14px"}>
           <a className={"author"} href={`https://v2ex.com/member/${ps.reply.member.username}`}
              target={"_blank"}>{ps.reply.member.username}{ps.reply.member.id === ps.authorID && " [楼主]"}</a>
