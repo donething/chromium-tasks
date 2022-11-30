@@ -172,7 +172,7 @@ const V2exSettings = React.memo((props: { showDialog: (ps: DoDialogProps) => voi
   // 按住一会才触发拖动。避免影响元素本身的点击事件
   const sensors = useSensors(useSensor(PointerSensor, {
     activationConstraint: {
-      delay: 500,
+      delay: 200,
       tolerance: 0,
     }
   }))
