@@ -59,8 +59,8 @@ const SupplementItem = React.memo((ps: { supplement: Supplement, index: number }
   return (
     <Stack {...padLR2} {...padTB1} borderBottom={"1px solid #e2e2e2"} bgcolor={"#fffff9"}>
       <Stack className={"extra"} direction={"row"} gap={2} marginBottom={1}>
-        <span>{`第 ${ps.index} 条附言`}</span>
-        <span>{date(new Date(ps.supplement.created))}</span>
+        <span>{`第 ${ps.index + 1} 条附言`}</span>
+        <span>{date(new Date(ps.supplement.created * 1000))}</span>
       </Stack>
 
       <div className={"text"} dangerouslySetInnerHTML={{__html: ps.supplement.content_rendered}}/>
