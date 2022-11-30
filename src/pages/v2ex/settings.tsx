@@ -5,7 +5,7 @@ import Button from "@mui/material/Button"
 import {Chip, Divider} from "@mui/material"
 import {get} from "./comm"
 import type {Node} from "./types"
-import {DndContext, DragEndEvent} from "@dnd-kit/core"
+import {DndContext, DragEndEvent, PointerSensor, useSensor, useSensors} from "@dnd-kit/core"
 import {arrayMove, SortableContext, useSortable} from "@dnd-kit/sortable"
 import {CSS} from "@dnd-kit/utilities"
 
@@ -169,6 +169,14 @@ const V2exSettings = React.memo((props: { showDialog: (ps: DoDialogProps) => voi
   // 所有节点的 ID
   const ids = React.useMemo(() => v2Sets.nodes?.map(node => node.name), v2Sets.nodes)
 
+  // 按住一会才触发拖动。避免影响元素本身的点击事件
+  const sensors = useSensors(useSensor(PointerSensor, {
+    activationConstraint: {
+      delay: 500,
+      tolerance: 0,
+    }
+  }))
+
   // 初始化
   const init = async () => {
     let storage = await chrome.storage.sync.get({[CS_KEY_V2EX_TOPICS]: {}})
@@ -189,7 +197,7 @@ const V2exSettings = React.memo((props: { showDialog: (ps: DoDialogProps) => voi
       <Stack gap={2} marginTop={2} flexDirection={"row"} flexWrap={"wrap"}>
         {
           !v2Sets.nodes?.length ? <h3>还没有收藏节点</h3> :
-            <DndContext onDragEnd={onDragEnd}>
+            <DndContext onDragEnd={onDragEnd} sensors={sensors}>
               <SortableContext items={ids || []}>{nodes}</SortableContext>
             </DndContext>
         }
