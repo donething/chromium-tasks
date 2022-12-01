@@ -18,6 +18,11 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
 }
 
+pre {
+  overflow: auto;
+  max-height: 600px;
+}
+
 ul, li {
   list-style: none;
   padding: 0;
@@ -108,4 +113,19 @@ a.author:hover {
   font-weight: bold;
   background: #FFFFFF;
   color: rgba(0, 0, 0, 0.85);
+}
+
+.page {
+  display: block;
+  border: solid;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  /* 行高和高度一致，让文本居中 */
+  line-height: 32px;
+  background-color: #40a9ff;
+  text-align: center;
+  color: #FFF;
+  font-size: 1.2em;
+  font-weight: 600;
 }

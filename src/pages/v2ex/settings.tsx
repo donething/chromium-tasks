@@ -193,7 +193,7 @@ const V2exSettings = React.memo((props: { showDialog: (ps: DoDialogProps) => voi
 
   return (
     <Stack>
-      <Divider>关注的节点（即时生效）</Divider>
+      <Divider>关注的节点（可拖动，即时生效）</Divider>
       <Stack gap={2} marginTop={2} flexDirection={"row"} flexWrap={"wrap"}>
         {
           !v2Sets.nodes?.length ? <h3>还没有收藏节点</h3> :

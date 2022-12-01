@@ -88,14 +88,12 @@ const Slider = React.memo((ps: {
   }), [ps.tabCurrent])
 
   return (
-    <Stack position={"fixed"} bottom={20} right={200} gap={1}>
+    <Stack position={"fixed"} bottom={20} right={200} gap={1} alignItems={"center"}>
       <IconButton title={"第一页"} onClick={() => setPage(-100000)}><ReplayOutlinedIcon/></IconButton>
       <IconButton title={"上一页"} disabled={!ps.pageMap[ps.tabCurrent] || ps.pageMap[ps.tabCurrent] === 1}
                   onClick={() => setPage(-1)}><ArrowUpwardOutlinedIcon/></IconButton>
 
-      <Typography title={"当前页数"} fontSize={"1.2em"} fontWeight={600} textAlign={"center"}>
-        {ps.pageMap[ps.tabCurrent] || 1}
-      </Typography>
+      <span className={"page"} title={"当前页数"}>{ps.pageMap[ps.tabCurrent] || 1}</span>
 
       <IconButton title={"下一页"} onClick={() => setPage(1)}><ArrowDownwardOutlinedIcon/></IconButton>
 

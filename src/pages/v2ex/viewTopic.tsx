@@ -3,7 +3,7 @@ import {useLocation} from 'react-router-dom'
 import type {Reply, Supplement, Topic} from "./types"
 import {date, request} from "do-utils"
 import {useSharedSnackbar} from "do-comps"
-import {Avatar, Box, Divider, IconButton, Stack, Typography} from "@mui/material"
+import {Alert, Avatar, Box, Divider, IconButton, Stack, Typography} from "@mui/material"
 import VerticalAlignTopOutlinedIcon from "@mui/icons-material/VerticalAlignTopOutlined"
 import VerticalAlignBottomOutlinedIcon from "@mui/icons-material/VerticalAlignBottomOutlined"
 import ArrowDownwardOutlinedIcon from "@mui/icons-material/ArrowDownwardOutlined"
@@ -78,6 +78,7 @@ const Content = React.memo((ps: { tid: string, authorIDRef: React.MutableRefObje
   // 共享 Snackbar
   const {showSb} = useSharedSnackbar()
 
+  // 获取数据
   const getData = async () => {
     setTopic(undefined)
 
@@ -111,12 +112,24 @@ const Content = React.memo((ps: { tid: string, authorIDRef: React.MutableRefObje
     getData()
   }, [ps.tid])
 
+  // 内容
+  const contentHtml = React.useMemo(() => {
+    if (!topic?.content) {
+      return <Alert severity="info">该主题只有标题，没有内容</Alert>
+    }
+
+    // 渲染HTML内容
+    let html = topic.content_rendered
+    if (!html.startsWith("<p>")) {
+      html = `<p>${topic.content_rendered}</p>`
+    }
+    return <Box className={"text"} component={"div"} {...padLR2}
+                dangerouslySetInnerHTML={{__html: html}}/>
+
+  }, [topic])
+
   if (!topic) {
     return <Loading/>
-  }
-
-  if (!topic.content_rendered.startsWith("<p>")) {
-    topic.content_rendered = `<p>${topic.content_rendered}</p>`
   }
 
   return (
@@ -141,8 +154,7 @@ const Content = React.memo((ps: { tid: string, authorIDRef: React.MutableRefObje
       </Stack>
 
       {/* 主题内容 */}
-      <Box className={"text"} component={"div"} {...padLR2}
-           dangerouslySetInnerHTML={{__html: topic.content_rendered}}/>
+      {contentHtml}
 
       {/* 附言 */}
       {
@@ -164,15 +176,17 @@ const Content = React.memo((ps: { tid: string, authorIDRef: React.MutableRefObje
 const ReplyItem = React.memo((ps: { reply: Reply, index: number, authorID: number }) => {
   return (
     <Stack component={"li"} direction={"row"} alignItems={"center"} paddingTop={1} paddingBottom={1}
-           borderBottom={"1px solid #e2e2e2"} bgcolor={ps.index % PAGE_SIZE === 0 ? "#fffff9" : "inherit"}>
+           borderBottom={"1px solid #e2e2e2"} bgcolor={ps.index % PAGE_SIZE === 0 ? "#fffff0" : "inherit"}>
       <Avatar src={ps.reply.member.avatar || ps.reply.member.avatar_large} variant={"rounded"}
               sx={{marginTop: 1, marginLeft: 2, alignSelf: "flex-start"}}/>
 
       <Stack marginLeft={2} marginRight={1} gap={1}>
-        <Stack className={"extra"} direction={"row"} alignItems={"center"} gap={2} fontSize={"14px"}>
+        <Stack className={"extra"} direction={"row"} alignItems={"center"} fontSize={"14px"}>
           <a className={"author"} href={`https://v2ex.com/member/${ps.reply.member.username}`}
-             target={"_blank"}>{ps.reply.member.username}{ps.reply.member.id === ps.authorID && " [楼主]"}</a>
-          <span>{date(new Date(ps.reply.created * 1000))}</span>
+             target={"_blank"}>{ps.reply.member.username}</a>
+          {ps.reply.member.id === ps.authorID &&
+            <Box component={"span"} marginLeft={1} color={"#51AAAA"}>[楼主]</Box>}
+          <Box component={"span"} marginLeft={2}>{date(new Date(ps.reply.created * 1000))}</Box>
         </Stack>
 
         <div className={"text"} dangerouslySetInnerHTML={{__html: ps.reply.content_rendered}}/>
