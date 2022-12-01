@@ -3,7 +3,7 @@ import {useLocation} from 'react-router-dom'
 import type {Reply, Supplement, Topic} from "./types"
 import {date, request} from "do-utils"
 import {useSharedSnackbar} from "do-comps"
-import {Avatar, Box, IconButton, Stack} from "@mui/material"
+import {Avatar, Box, Divider, IconButton, Stack, Typography} from "@mui/material"
 import VerticalAlignTopOutlinedIcon from "@mui/icons-material/VerticalAlignTopOutlined"
 import VerticalAlignBottomOutlinedIcon from "@mui/icons-material/VerticalAlignBottomOutlined"
 import ArrowDownwardOutlinedIcon from "@mui/icons-material/ArrowDownwardOutlined"
@@ -120,11 +120,13 @@ const Content = React.memo((ps: { tid: string, authorIDRef: React.MutableRefObje
   }
 
   return (
-    <Stack borderBottom={"1px solid #e2e2e2"}>
+    <>
       {/* 标题、楼主名、头像 等 */}
-      <Stack direction={"row"} padding={2} borderBottom={"1px solid #e2e2e2"}>
+      <Stack direction={"row"} padding={2} borderBottom={"1px solid #e2e2e2"}
+             boxShadow={"0px 1px 3px 0px rgba(0,0,0,0.12)"}
+             position={"sticky"} top={0} zIndex={1000} bgcolor={"background.paper"}>
         <Stack>
-          <span className={"title"}>{topic.title}</span>
+          <Typography className={"title"}>{topic.title}</Typography>
 
           <Stack className={"extra"} direction={"row"} marginTop={2} marginRight={2} gap={2}>
             <a className={"author"} href={topic.member.url} target={"_blank"}>{topic.member.username}</a>
@@ -150,7 +152,9 @@ const Content = React.memo((ps: { tid: string, authorIDRef: React.MutableRefObje
           ))}
         </Stack>
       }
-    </Stack>
+
+      <Divider sx={{borderWidth: "thin"}}/>
+    </>
   )
 })
 
@@ -160,11 +164,11 @@ const Content = React.memo((ps: { tid: string, authorIDRef: React.MutableRefObje
 const ReplyItem = React.memo((ps: { reply: Reply, index: number, authorID: number }) => {
   return (
     <Stack component={"li"} direction={"row"} alignItems={"center"} paddingTop={1} paddingBottom={1}
-           borderTop={"1px solid #e2e2e2"} bgcolor={ps.index % PAGE_SIZE === 0 ? "#fffff9" : "inherit"}>
+           borderBottom={"1px solid #e2e2e2"} bgcolor={ps.index % PAGE_SIZE === 0 ? "#fffff9" : "inherit"}>
       <Avatar src={ps.reply.member.avatar || ps.reply.member.avatar_large} variant={"rounded"}
               sx={{marginTop: 1, marginLeft: 2, alignSelf: "flex-start"}}/>
 
-      <Stack marginLeft={2} gap={1}>
+      <Stack marginLeft={2} marginRight={1} gap={1}>
         <Stack className={"extra"} direction={"row"} alignItems={"center"} gap={2} fontSize={"14px"}>
           <a className={"author"} href={`https://v2ex.com/member/${ps.reply.member.username}`}
              target={"_blank"}>{ps.reply.member.username}{ps.reply.member.id === ps.authorID && " [楼主]"}</a>
@@ -174,6 +178,7 @@ const ReplyItem = React.memo((ps: { reply: Reply, index: number, authorID: numbe
         <div className={"text"} dangerouslySetInnerHTML={{__html: ps.reply.content_rendered}}/>
       </Stack>
 
+      {/* marginLeft 为 auto，可以让楼层号右对齐。若同时需要左边距，可以设置其左边元素的右边距 */}
       <Box className={"extra"} component={"span"} marginLeft={"auto"} marginRight={2}>#{ps.index}</Box>
     </Stack>
   )

@@ -26,7 +26,7 @@ const sxTab: SxProps = {
 const TopicItem = React.memo((ps: Topic) => {
   return (
     <Stack component={"li"} direction={"row"} alignItems={"center"} paddingTop={2} paddingBottom={2}
-           borderTop={"1px solid #e2e2e2"}>
+           borderBottom={"1px solid #e2e2e2"}>
       <Avatar src={ps.member.avatar || ps.member.avatar_large} variant={"rounded"}
               sx={{marginTop: 1, marginLeft: 1, alignSelf: "flex-start"}}/>
 
@@ -246,13 +246,14 @@ const V2exTopics = React.memo(() => {
   return (
     <Stack sx={{width: "50%", height: "100vh", margin: "0 auto", bgcolor: "#FFF"}}>
       {/* Tab 标签 */}
-      <Box width={"100%"} flex={"0 1 auto"} borderColor={"divider"}>
+      <Box width={"100%"} flex={"0 1 auto"} borderColor={"divider"} boxShadow={"0px 1px 3px 0px rgba(0,0,0,0.12)"}>
         <Tabs value={tabCurrent} onChange={handleChange} variant="scrollable">{tabs}</Tabs>
       </Box>
 
       {/* 主题列表 */}
       {!allTopics ? <Loading/> :
-        <Stack component={"ul"} overflow={"auto"} marginTop={1}>{allTopics}</Stack>}
+        <Stack component={"ul"} overflow={"auto"}>{allTopics}</Stack>
+      }
 
       {/* 工具按钮 */}
       <Slider tabCurrent={tabCurrent} pageMap={pageMap} setPageMap={setPageMap}/>
