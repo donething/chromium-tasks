@@ -134,7 +134,7 @@ const Remote = (props: { sx?: SxProps<Theme> }): JSX.Element => {
       <li key={id}>
         <Stack spacing={1}>
           <Typography>共有 {s.total} 个，发送 {s.done} 个</Typography>
-          <Typography>跳过 {s.skip} 个，失败 {s.fail} 个</Typography>
+          <Typography>失败 {s.fail} 个，跳过 {s.skip} 个</Typography>
         </Stack>
       </li>
     )
