@@ -51,7 +51,11 @@ export namespace wb {
     // 是否正确响应
     ok: number
     data: {
+      // 当首次请求时的`page`参数不为`1`时，该值为空，需要避免首次`page`不为`1`的情况
+      since_id: string
       list: Array<WBTopic>
+      // 总博客数，除以默认页大小`20`，即为总页数
+      total: number
     }
   }
 
@@ -126,6 +130,7 @@ export namespace wb {
 
   // 用户信息
   type User = {
+    // 用户ID
     id: number
     idstr: string
     // 博主名，如"XX"

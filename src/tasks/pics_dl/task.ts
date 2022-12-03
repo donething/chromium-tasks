@@ -17,8 +17,11 @@ export const sites = {
     // 获取任务主页
     getURL: (task: ptask.Task) => `https://weibo.com/u/${task.id}`,
 
-    // 获取任务的详细信息，用于显示
-    // @see https://www.jianshu.com/p/7f3b72c08f77
+    /**
+     * 获取任务的详细信息，用于显示
+     * @param task
+     * @see https://www.jianshu.com/p/7f3b72c08f77
+     */
     async check(task: ptask.Task): Promise<ptask.TaskInfo> {
       const apiUrl = `https://m.weibo.cn/api/container/getIndex?containerid=100505${task.id}`
       let resp = await request(apiUrl)
@@ -46,25 +49,38 @@ export const sites = {
     async getPosts(task: ptask.Task): Promise<pinfo.PostsPayload | undefined> {
       let postsList: pinfo.Album[] = []
       let page = 1
+      let pageTotal = 0
       let lastIdstr = task.last
       while (true) {
         // 获取数据、解析
         // feature 为 0 表示获取原贴+转帖；为 1 表示只获取原贴
         let url = `https://weibo.com/ajax/statuses/mymblog?uid=${task.id}&page=${page}&feature=0`
-        let resp = await request(url)
-        let obj: wb.WBList = await resp.json().catch(e => {
-          console.log(`[${task.plat}][${task.id}] 获取图集出错，可能需要登录一次网站：`, e)
+        let resp = await request(url).catch(e => {
+          console.log(`[${task.plat}][${task.id}] 获取图集出错，网络错误，将重新获取第 ${page} 页`, e)
         })
+        if (!resp) {
+          continue
+        }
 
-        // 出错时，返回空的图集列表，表示没有新图集或获取失败，不能保存最新进度到存储
-        if (!obj) {
+        let text = await resp.text()
+
+        // 验证数据是否正确
+        // 需要先登录
+        if (text.indexOf("Sina Visitor System") >= 0) {
+          console.log(`[${task.plat}][${task.id}] 获取图集出错，需要登录网站：`, "https://weibo.com")
           return undefined
         }
 
-        // 不再包含图集时，退出循环
-        if (obj.data.list.length === 0) {
-          console.log(`[${task.plat}][${task.id}] 已获取完最新图集`)
-          return {last: lastIdstr, posts: postsList}
+        // 服务器暂时错误，需重试
+        //返回的是非JSON数据，无法解析，所以无法通过页数判断是否继续，所以放在`parse`前面
+        if (text.indexOf("400 Bad Request") >= 0 || text.indexOf("Internal Server Error") >= 0) {
+          console.log(`[${task.plat}][${task.id}] 获取图集出错，服务器返回错误，将重新获取第 ${page} 页`)
+          continue
+        }
+
+        let obj: wb.WBList = JSON.parse(text)
+        if (pageTotal === 0) {
+          pageTotal = Math.ceil(obj.data.total / 20)
         }
 
         // 提取图片的下载链接
@@ -78,6 +94,13 @@ export const sites = {
           if (page === 1 && index === 0) {
             lastIdstr = item.idstr
           }
+
+          // 特殊处理
+          // 因获取的图集不全，只下载了整个图集的前面一部分。判断直接从此点开始读取
+          // 不能通过设置`page`获取，此时`since_id`为空，无法获取到图集数据
+          // if (item.user.idstr === "6556637551" && item.idstr >= "4771572118978867") {
+          //   break
+          // }
 
           // 按分辨率存储图片的地址
           const album: Array<string> = []
@@ -122,10 +145,15 @@ export const sites = {
           // console.log(PicSaveBG.TAG, "[微博]", "已添加图集：", item.idstr);
         }
 
-        console.log(`[${task.plat}][${task.id}] 已添加第 ${page} 页的图集`)
-        page++
+        console.log(`[${task.plat}][${task.id}] 已添加第 ${page}/${pageTotal} 页的图集`)
 
-        await sleep(Math.random() * 3 * 1000)
+        if (pageTotal !== 0 && page > pageTotal && obj.data.list.length === 0) {
+          console.log(`[${task.plat}][${task.id}] 已获取完最新图集`)
+          return {last: lastIdstr, posts: postsList}
+        }
+
+        page++
+        await sleep(Math.random() * 1000)
       }
     }
   }

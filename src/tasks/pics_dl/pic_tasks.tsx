@@ -272,17 +272,15 @@ const PicTasksComp = (): JSX.Element => {
             <CloudDownloadOutlinedIcon/>
           </IconButton>
 
-          <Switch title="准许检测" checked={swEnable}
-                  onChange={async event => {
-                    setSwEnable(event.target.checked)
-                    // 读取存储的数据
-                    let data = await chrome.storage.sync.get({picTasks: {}})
-                    let picTasks: ptask.PicTasks = data.picTasks
-                    picTasks.enable = event.target.checked
-                    await chrome.storage.sync.set({picTasks: picTasks})
-                    showSb({open: true, message: "已保存设置"})
-                  }}
-          />
+          <Switch title="准许检测" checked={swEnable} onChange={async event => {
+            setSwEnable(event.target.checked)
+            // 读取存储的数据
+            let data = await chrome.storage.sync.get({picTasks: {}})
+            let picTasks: ptask.PicTasks = data.picTasks
+            picTasks.enable = event.target.checked
+            await chrome.storage.sync.set({picTasks: picTasks})
+            showSb({open: true, message: "已保存设置"})
+          }}/>
         </Stack>}
       />
 
