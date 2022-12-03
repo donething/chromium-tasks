@@ -83,6 +83,12 @@ export const sites = {
           pageTotal = Math.ceil(obj.data.total / 20)
         }
 
+        // 获取的数据不正确，重新获取
+        if (page < pageTotal && obj.data.list.length === 0) {
+          console.log(`[${task.plat}][${task.id}] 获取的数据不正确，将重新获取第 ${page} 页`)
+          continue
+        }
+
         // 提取图片的下载链接
         for (const [index, item] of obj.data.list.entries()) {
           // 当读取的帖子的 idstr 等于或小于已保存的进度记录，说明已读取到上次的地方，直接返回数据
