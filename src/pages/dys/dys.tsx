@@ -18,6 +18,13 @@ type DysInfo = {
 // 保存的数据为页数，用于恢复网页时，恢复展示之前的 Tab 的页数
 const SeriesInfos = [
   {
+    title: "TA的视频",
+    mid: "8739477",
+    size: 30,
+    // 获取“TA的视频”API和上面常规合集的API不一样，需要标志
+    search: true
+  },
+  {
     title: "直播回放",
     mid: "8739477",
     series_id: "405144",
@@ -28,13 +35,6 @@ const SeriesInfos = [
     mid: "8739477",
     series_id: "449435",
     size: 30
-  },
-  {
-    title: "TA的视频",
-    mid: "8739477",
-    size: 30,
-    // 获取“TA的视频”API和上面常规合集的API不一样，需要标志
-    search: true
   }
 ]
 
