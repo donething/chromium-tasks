@@ -2,6 +2,8 @@ import React, {useEffect, useState} from "react"
 import {Box, Pagination, Stack, Tab, Tabs} from "@mui/material"
 import {request, date} from "do-utils"
 import {useSharedSnackbar} from "do-comps"
+import type {DYSVideo} from "./types"
+import type {DYSMyVideos, DYSSeries} from "./types"
 
 // 需要保存到存储的数据
 type DysInfo = {
@@ -12,10 +14,10 @@ type DysInfo = {
 }
 
 // 需要获取的合集的信息，一个元素用一个 Tab 展示
-// 最近添加的必须在后面，以免历史记录的信息匹配出错
+// 最近添加的必须在后面，以免保存到chromium storage中的数据错乱
+// 保存的数据为页数，用于恢复网页时，恢复展示之前的 Tab 的页数
 const SeriesInfos = [
   {
-    // 对应当前 Tab 的索引，用于恢复网页时，恢复展示之前的 Tab
     title: "直播回放",
     mid: "8739477",
     series_id: "405144",
@@ -26,8 +28,24 @@ const SeriesInfos = [
     mid: "8739477",
     series_id: "449435",
     size: 30
+  },
+  {
+    title: "TA的视频",
+    mid: "8739477",
+    size: 30,
+    // 获取“TA的视频”API和上面常规合集的API不一样，需要标志
+    search: true
   }
 ]
+
+// 过滤主页视频（search）
+const filterSearch = (sec: number): boolean => {
+  let date = new Date((sec - 24 * 3600) * 1000)
+  let day = date.getDay()
+
+  // 只返回 周二(2)、四(4)、六(6)、日(0)的视频
+  return day === 0 || day === 2 || day === 4 || day === 6
+}
 
 // 根据人、时间过滤视频
 const filterSL = (title: string): boolean => {
@@ -87,7 +105,7 @@ const DYSTabs = (): JSX.Element => {
 
   // 存储所有 Tab 内的视频合集的数据，每个元素表示一个标签
   // fill() 当参数为引用类型时，所有数组元素会共用这个引用，导致更改一个值时，其它元素的值也改变，所以需要避免
-  const [dataList, setDataList] = useState<Array<Array<DYS.Arc>>>(initDataList(SeriesInfos.length))
+  const [dataList, setDataList] = useState<DYSVideo[][]>(initDataList(SeriesInfos.length))
 
   // 显示消息
   const {showSb} = useSharedSnackbar()
@@ -101,13 +119,22 @@ const DYSTabs = (): JSX.Element => {
   // 获取数据
   const getData = async (ctid: number) => {
     let mid = SeriesInfos[ctid].mid
+    let search = SeriesInfos[ctid].search
     let series_id = SeriesInfos[ctid].series_id
     let page = pagesList[ctid]
     let size = SeriesInfos[ctid].size
-    let url = `https://api.bilibili.com/x/series/archives?mid=${mid}` +
-      `&series_id=${series_id}&only_normal=true&sort=desc&pn=${page}&ps=${size}`
+
+    // 获取“TA的视频”API
+    let url = `https://api.bilibili.com/x/space/arc/search?mid=${mid}` +
+      `&ps=${size}&pn=${page}&order=pubdate&order_avoided=true`
+    // 常规合集 API
+    if (!search) {
+      url = `https://api.bilibili.com/x/series/archives?mid=${mid}` +
+        `&series_id=${series_id}&only_normal=true&sort=desc&pn=${page}&ps=${size}`
+    }
+
     let resp = await request(url)
-    let obj: DYS.SeriesResp = await resp.json()
+    let obj: DYSMyVideos.MyVideosResp = await resp.json()
     if (obj.code !== 0) {
       showSb({open: true, severity: "error", message: `获取用户UID"${mid}"的视频集出错：${obj.message}`})
       console.log(`获取用户UID"${mid}"的视频集出错：${obj.message}`, url)
@@ -115,17 +142,45 @@ const DYSTabs = (): JSX.Element => {
     }
 
     // 设置该视频集的总页数
+    let curPage: number
+    let vList: DYSVideo[]
+    // 根据不同API，提取数据
+    if (search) {
+      curPage = Math.ceil(obj.data.page.count / obj.data.page.ps)
+      vList = obj.data.list.vlist.map(item => ({
+        title: item.title,
+        bvid: item.bvid,
+        pic: item.pic,
+        play: item.play,
+        created: item.created
+      }))
+    } else {
+      let objn = obj as unknown as DYSSeries.SeriesResp
+      curPage = Math.ceil(objn.data.page.total / objn.data.page.size)
+      vList = objn.data.archives.map((item: DYSSeries.Arc) => ({
+        title: item.title,
+        bvid: item.bvid,
+        pic: item.pic,
+        play: item.stat.view,
+        created: item.pubdate
+      }))
+    }
+
+    // 设置当前标签的总页数
     setPTotalList(prev => {
       let nArray = [...prev]
-      nArray[tabCurrent] = Math.ceil(obj.data.page.total / obj.data.page.size)
+      nArray[tabCurrent] = curPage
       return nArray
     })
 
     // 填充需展示的数据
     setDataList(prev => {
       let nArray = [...prev]
-      let add = obj.data.archives
-      // 只对直播视频过滤，对解说视频不需过滤
+      let add = vList
+      // 对我的视频、直播视频过滤，对解说视频不需过滤
+      if (search) {
+        add = add.filter(v => filterSearch(v.created))
+      }
       if (series_id === "405144") {
         add = add.filter(v => filterSL(v.title))
       }
@@ -203,14 +258,13 @@ const DYSTabs = (): JSX.Element => {
                 <img src={item.pic} style={{width: "160px", height: "100px", borderRadius: "4px"}} alt={"封面"}/>
               </a>
 
-              <a title={item.title} href={`https://www.bilibili.com/video/${item.bvid}`} target={"_blank"} style={{
-                fontSize: "14px", marginTop: "3px", lineHeight: "20px", height: "40px",
-                display: "block", overflow: "hidden"
-              }}>{item.title}</a>
+              <a className={"link line-2"} title={item.title} href={`https://www.bilibili.com/video/${item.bvid}`}
+                 target={"_blank"}>{item.title}
+              </a>
 
               <Stack direction={"row"} justifyContent={"space-between"} color={"#999"} marginTop={"3px"}>
-                <span>{item.stat.view} 人</span>
-                <span>{date(new Date(item.pubdate * 1000), "YYYY-mm-dd")}</span>
+                <span>{item.play}次</span>
+                <span>{date(new Date(item.created * 1000), "YYYY-mm-dd")}</span>
               </Stack>
             </Stack>
           )
