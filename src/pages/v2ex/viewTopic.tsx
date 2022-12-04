@@ -269,6 +269,10 @@ const Repies = React.memo((ps: { tid: string, authorIDRef: React.MutableRefObjec
     return <Loading/>
   }
 
+  if (mReplies?.length === 0) {
+    return <Alert severity="info">该主题还没有回复</Alert>
+  }
+
   return (
     <Stack component={"ul"}>{mReplies}</Stack>
   )
