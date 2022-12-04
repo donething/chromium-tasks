@@ -185,7 +185,7 @@ const sendToDL = async (path: string,
   }
 
   console.log("已提交图集下载的任务")
-  showSb({open: true, severity: "success", message: "已提交图集下载的任务"})
+  showSb({open: true, severity: "info", message: "已提交图集下载的任务"})
   return true
 }
 
@@ -197,6 +197,11 @@ export const startDLPics = async function (setWorking: React.Dispatch<React.SetS
                                            showSb: (ps: DoSnackbarProps) => void) {
   // 开始获取图集列表前，禁用下载按钮
   setWorking(true)
+
+  // 先打开页面，等待登录
+  console.log("已打开微博页面，等待登录…")
+  window.open("https://weibo.com/")
+  await sleep(3 * 1000)
 
   // 开始获取
   // 保存本次下载的所有图集信息
