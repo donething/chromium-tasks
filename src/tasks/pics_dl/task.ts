@@ -151,7 +151,7 @@ export const sites = {
           // console.log(PicSaveBG.TAG, "[微博]", "已添加图集：", item.idstr);
         }
 
-        console.log(`[${task.plat}][${task.id}] 已添加第 ${page}/${pageTotal} 页的图集`)
+        console.log(`[${task.plat}][${task.id}] 已添加第 ${page}/${pageTotal}(最大值) 页的图集`)
 
         if (pageTotal !== 0 && page > pageTotal && obj.data.list.length === 0) {
           console.log(`[${task.plat}][${task.id}] 已获取完最新图集`)
