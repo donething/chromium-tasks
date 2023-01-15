@@ -179,7 +179,8 @@ const DYSTabs = (): JSX.Element => {
       let add = vList
       // 对我的视频、直播视频过滤，对解说视频不需过滤
       if (search) {
-        add = add.filter(v => filterSearch(v.created))
+        // 标题包含"解说"说明为解说视频，不需要过滤
+        add = add.filter(v => v.title.toLowerCase().includes("解说") || filterSearch(v.created))
       }
       if (series_id === "405144") {
         add = add.filter(v => filterSL(v.title))
