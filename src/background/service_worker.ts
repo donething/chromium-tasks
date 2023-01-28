@@ -3,6 +3,7 @@ import {app} from "../tasks/attention/libs/apps"
 import {HDSay} from "../tasks/hdsay"
 import {CCmnn} from "../tasks/ccmnn"
 import {JD} from "../tasks/jd"
+import {HDTime} from "../tasks/hdtime"
 
 // 监听定时
 chrome.alarms.onAlarm.addListener(async alarm => {
@@ -63,6 +64,9 @@ chrome.runtime.onStartup.addListener(async () => {
 
   // hdsay
   HDSay.startTask()
+
+  // hdtime
+  HDTime.sign()
 
   // ccmnn
   await CCmnn.startTask()

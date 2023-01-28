@@ -1,7 +1,6 @@
 import cheerio from "cheerio"
 import {notify, sleep, request, random} from "do-utils"
-
-const iconUrl = chrome.runtime.getURL("/icons/extension_128.png")
+import {noIconUrl} from "../comm/utils"
 
 // 存储到 chromium storage sync 的数据：tasks.hdsay
 export declare interface HdsaySets {
@@ -46,7 +45,7 @@ export const HDSay = {
       notify({
         title: this.TAG,
         message: "无法从cookie中获取到'XSRF-TOKEN'值",
-        iconUrl: iconUrl,
+        iconUrl: noIconUrl,
         buttons: [{title: "打开网站"}, {title: "取消"}]
       }, [() => {
         chrome.tabs.create({url: "https://www.hdsay.net/"})
@@ -64,7 +63,7 @@ export const HDSay = {
       notify({
         title: this.TAG,
         message: "签到出错，需要手动签到一次，可打开控制台查看信息",
-        iconUrl: iconUrl,
+        iconUrl: noIconUrl,
         buttons: [{title: "打开网站"}, {title: "取消"}]
       }, [() => {
         chrome.tabs.create({url: "https://www.hdsay.net/member/sign"})
@@ -171,7 +170,7 @@ export const HDSay = {
         let url = $(item).find("a.item").attr("href")
         if (!url) {
           console.log(this.TAG, `提取帖子的链接出错`)
-          notify({title: this.TAG, message: "提取帖子的链接出错", iconUrl: iconUrl})
+          notify({title: this.TAG, message: "提取帖子的链接出错", iconUrl: noIconUrl})
           return
         }
         // 从链接中提取帖子的ID
@@ -237,7 +236,7 @@ export const HDSay = {
       obj = JSON.parse(text)
     } catch (e) {
       console.log(this.TAG, `回复帖子"${id}"出错，无法解析响应内容："${e}" ==> "${text}"`)
-      notify({title: this.TAG, message: "回帖出错：可查看控制台的输出信息", iconUrl: iconUrl})
+      notify({title: this.TAG, message: "回帖出错：可查看控制台的输出信息", iconUrl: noIconUrl})
       return false
     }
 
@@ -256,7 +255,7 @@ export const HDSay = {
       notify({
         title: this.TAG,
         message: "回帖失败，可查看控制台的输出信息",
-        iconUrl: iconUrl,
+        iconUrl: noIconUrl,
         buttons: [{title: "打开"}, {title: "取消"}]
       })
       return false

@@ -8,8 +8,7 @@ import {request} from "do-utils"
 import {pushCardMsg} from "../comm/push"
 import {notify} from "do-utils"
 import cheerio from "cheerio"
-
-const iconUrl = chrome.runtime.getURL("/icons/extension_48.png")
+import {noIconUrl} from "../comm/utils"
 
 export const JD = {
   TAG: "[JD]",
@@ -60,7 +59,7 @@ export const JD = {
     notify({
         title: "关注的商品已加入购物车",
         message: "需要手动下订单。注意订单总金额！",
-        iconUrl: iconUrl,
+        iconUrl: noIconUrl,
         buttons: [{title: "去下订单"}]
       }, [() =>
         chrome.tabs.create({url: "https://trade.jd.com/shopping/order/getOrderInfo.action"})
