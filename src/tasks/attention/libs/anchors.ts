@@ -196,6 +196,7 @@ export namespace anchor {
        * @return 主播的详细信息
        */
       check: async (basic: Basic): Promise<Status> => {
+        // 抖音页面的响应头会包含"link"字段，导致浏览器自动获取其中的脚本，导致跨域，所以通过后台服务提供此功能
         let url = `http://127.0.0.1:8800/api/lives/douyin/live?sec_uid=${basic.id}`
         let resp = await request(url)
         let obj = await resp.json()
