@@ -200,6 +200,13 @@ export namespace anchor {
         let resp = await request(url)
         let obj = await resp.json()
         let data: Status = obj.data
+        if (!data) {
+          return new Status({
+            name: "主播数据为空",
+            title: `${basic.plat} ${basic.id}`,
+            liveUrl: `https://www.douyin.com/user/${basic.id}`
+          })
+        }
 
         return new Status({
           avatar: data.avatar,
