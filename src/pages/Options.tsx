@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react'
-import Card, {CardProps} from "@mui/material/Card"
+import Card from "@mui/material/Card"
 import {CardHeader} from "@mui/material"
 import CardContent from "@mui/material/CardContent"
 import Button from "@mui/material/Button"
@@ -15,8 +15,14 @@ const wxTokenInit = {
   toUID: ""
 }
 
+// VPS 信息 的初始值
+export const vpsInfoInit = {
+  // 网址，如 "https://example.com"
+  addr: ""
+}
+
 // 微信 Token 组件
-const WXToken = (props?: CardProps): JSX.Element => {
+const WXToken = React.memo((): JSX.Element => {
   // 需要保存的 token 信息
   const [wxToken, setWxToken] = useState(wxTokenInit)
   // 提示消息
@@ -34,7 +40,7 @@ const WXToken = (props?: CardProps): JSX.Element => {
   }, [])
 
   return (
-    <Card {...props}>
+    <Card sx={{width: 300}}>
       <CardHeader title={"企业微信消息推送"}/>
 
       <Divider/>
@@ -96,7 +102,83 @@ const WXToken = (props?: CardProps): JSX.Element => {
       </CardActions>
     </Card>
   )
-}
+})
+
+const VPS = React.memo((): JSX.Element => {
+  // 需要保存的 token 信息
+  const [vps, setVPS] = useState(vpsInfoInit)
+  // 提示消息
+  const {showSb} = useSharedSnackbar()
+
+  // 仅在组件被导入时读取数据，组件有变动（重新渲染）时不执行
+  useEffect(() => {
+    // 读取存储的数据，显示
+    chrome.storage.sync.get({settings: {}}).then(data => {
+      console.log("读取存储的 VPS 信息")
+      if (data.settings.vps) {
+        setVPS(data.settings.vps)
+      }
+    })
+  }, [])
+
+  return (
+    <Card sx={{width: 300}}>
+      <CardHeader title={"VPS 信息"}/>
+
+      <Divider/>
+
+      <CardContent sx={{display: "flex", flexFlow: "column nowrap", gap: 4}}>
+        <DoPasswdField label="网址，如 https://a.com" value={vps.addr}
+                       setObject={value => setVPS(prev => ({...prev, addr: value}))}/>
+      </CardContent>
+
+      <Divider/>
+
+      <CardActions>
+        <Button color={"warning"} onClick={_ => {
+          delRevoke<typeof vpsInfoInit>("VPS 信息", vps, async () => {
+            // 删除输入框绑定的数据
+            setVPS(vpsInfoInit)
+
+            // 保存到 chromium storage
+            let data = await chrome.storage.sync.get({settings: {}})
+            data.settings.vps = undefined
+            chrome.storage.sync.set({settings: data.settings}).then(() => {
+              console.log("已删除 VPS 信息")
+              showSb({open: true, message: "已删除 VPS 信息", severity: "success"})
+            })
+          }, async origin => {
+            // 撤销删除
+            // 恢复输入框绑定的数据
+            setVPS(origin)
+
+            // 恢复数据到 chromium storage 中
+            let data = await chrome.storage.sync.get({settings: {}})
+            data.settings.vps = origin
+            chrome.storage.sync.set({settings: data.settings}, () => {
+              console.log("已恢复 VPS 信息")
+              showSb({open: true, message: "已恢复 VPS 信息", severity: "success"})
+            })
+          }, showSb)
+        }}>删除 VPS 信息</Button>
+
+        <Button color={"primary"} onClick={async _ => {
+          if (!vps.addr) {
+            showSb({open: true, message: "VPS 中的信息为空", severity: "warning"})
+            return
+          }
+
+          let data = await chrome.storage.sync.get({settings: {}})
+          data.settings.vps = vps
+
+          await chrome.storage.sync.set({settings: data.settings})
+          console.log("已保存 VPS 信息")
+          showSb({open: true, message: "已保存 VPS 信息", severity: "success"})
+        }}>保存 Token</Button>
+      </CardActions>
+    </Card>
+  )
+})
 
 // 选项组件
 const Options = (): JSX.Element => {
@@ -106,7 +188,10 @@ const Options = (): JSX.Element => {
 
   return (
     <Stack direction={"row"} spacing={4}>
-      <WXToken sx={{width: 300}}/>
+      <WXToken/>
+
+      <VPS/>
+
       <DoBackupPanelChromium/>
     </Stack>
   )

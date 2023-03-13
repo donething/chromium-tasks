@@ -7,6 +7,7 @@ import {delRevoke} from "do-comps"
 import type {pinfo} from "./types"
 import type {ptask} from "./types"
 import type {wb} from "./types"
+import type {vpsInfoInit} from "../../pages/Options"
 
 // 根据平台，获取指定用户的图集列表
 export const sites = {
@@ -170,7 +171,9 @@ export const sites = {
 const sendToDL = async (path: string,
                         albums: Array<pinfo.Album>,
                         showSb: (ps: DoSnackbarProps) => void,): Promise<boolean> => {
-  let resp = await request(`http://127.0.0.1:8800${path}`, albums)
+  let vps = await getVPSInfo()
+
+  let resp = await request(`${vps.addr}:20200${path}`, albums)
     .catch(e => console.log("发送下载图集的请求出错", e))
   if (!resp) {
     showSb({open: true, severity: "error", message: "发送下载图集的请求出错"})
@@ -310,4 +313,9 @@ export const clearProcess = async (showSb: (ps: DoSnackbarProps) => void) => {
     picTasks.list = origin.list
     await chrome.storage.sync.set({picTasks: picTasks})
   }, showSb)
+}
+
+export const getVPSInfo = async (): Promise<typeof vpsInfoInit> => {
+  let data = await chrome.storage.sync.get({settings: {vps: {}}})
+  return data.settings.vps
 }
