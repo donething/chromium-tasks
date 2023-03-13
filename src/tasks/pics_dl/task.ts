@@ -171,9 +171,9 @@ export const sites = {
 const sendToDL = async (path: string,
                         albums: Array<pinfo.Album>,
                         showSb: (ps: DoSnackbarProps) => void,): Promise<boolean> => {
-  let vps = await getVPSInfo()
+  let addr = await getPicRemoteAddr()
 
-  let resp = await request(`${vps.addr}:20200${path}`, albums)
+  let resp = await request(`${addr}${path}`, albums)
     .catch(e => console.log("发送下载图集的请求出错", e))
   if (!resp) {
     showSb({open: true, severity: "error", message: "发送下载图集的请求出错"})
@@ -315,7 +315,18 @@ export const clearProcess = async (showSb: (ps: DoSnackbarProps) => void) => {
   }, showSb)
 }
 
-export const getVPSInfo = async (): Promise<typeof vpsInfoInit> => {
+/**
+ * 获取图集下载服务的远程地址
+ */
+export const getPicRemoteAddr = async (): Promise<string> => {
   let data = await chrome.storage.sync.get({settings: {vps: {}}})
-  return data.settings.vps
+  let vps: typeof vpsInfoInit = data.settings.vps
+
+  // 因为远程服务器用`Nginx`做了代理，直接访问主域名即可，不需要添加端口
+  // 所以只在本地测试时添加端口
+  if (vps.addr.includes("127.0.0.1")) {
+    return `${vps.addr}:20200`
+  }
+
+  return vps.addr
 }

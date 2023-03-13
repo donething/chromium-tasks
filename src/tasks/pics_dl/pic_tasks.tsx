@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react"
 import {request, insertOrdered} from "do-utils"
-import {clearProcess, getVPSInfo, sites, startDLPics, startRetry} from "./task"
+import {clearProcess, getPicRemoteAddr, sites, startDLPics, startRetry} from "./task"
 import IconButton from "@mui/material/IconButton"
 import Switch from "@mui/material/Switch"
 import type {SxProps, Theme} from "@mui/material"
@@ -89,15 +89,15 @@ const Remote = (props: { sx?: SxProps<Theme> }): JSX.Element => {
 
   // 获取数据
   const getData = async () => {
-    let vps = await getVPSInfo()
-    if (!vps.addr) {
+    let addr = await getPicRemoteAddr()
+    if (!addr) {
       setConnOK(false)
       showSb({open: true, severity: "info", message: "请先在选项页面中设置 VPS 信息"})
       return
     }
 
     // 更新连接服务端的状态
-    let resp = await request(`${vps.addr}:20200/api/pics/dl/status`).catch((e) => {
+    let resp = await request(`${addr}/api/pics/dl/status`).catch((e) => {
       console.error("连接服务端出错，网络错误：", e)
       showSb({open: true, severity: "error", message: "连接服务端出错，网络错误"})
       setConnOK(false)
@@ -118,7 +118,7 @@ const Remote = (props: { sx?: SxProps<Theme> }): JSX.Element => {
 
     // 获取任务失败的数量
     // 获取需要重试的图集数
-    request(`${vps.addr}:20200/api/pics/dl/count`).then(resp => resp.json()).then(obj => {
+    request(`${addr}/api/pics/dl/count`).then(resp => resp.json()).then(obj => {
       if (obj?.code === 0) {
         setTotalCount(obj.data)
       }
