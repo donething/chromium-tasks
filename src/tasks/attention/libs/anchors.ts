@@ -27,8 +27,6 @@ export namespace anchor {
     enable?: boolean
     // 主播ID/房间号
     id: string
-    // 新的主播ID/房间号，用于以新ID获取详细信息
-    idNew?: string
     // 平台
     plat: Plat
 
@@ -45,19 +43,16 @@ export namespace anchor {
     name: string
     // 直播页面
     liveUrl: string
-    // 流地址
-    streamUrl?: string
     // 是否在线，0：离线；1：在线：2：录播/回放
-    online?: number
+    online?: boolean
     // 直播间的标题
     title?: string
     // 头像
     avatar?: string
 
-    constructor({avatar, liveUrl, name, online, title, streamUrl}: Status) {
+    constructor({avatar, liveUrl, name, online, title}: Status) {
       this.avatar = avatar
       this.liveUrl = liveUrl
-      this.streamUrl = streamUrl
       this.name = name
       this.online = online
       this.title = title
@@ -96,7 +91,7 @@ export namespace anchor {
           liveUrl: `https://www.douyu.com/${basic.id}`,
           name: result.data.owner_name,
           // room_status为"1"：在播，为"2"：离线
-          online: result.data.room_status === "1" ? 1 : 0,
+          online: result.data.room_status === "1",
           title: result.data.room_name
         }
 
@@ -130,12 +125,7 @@ export namespace anchor {
         let name = $(".host-name").text().trim()
         // 虎牙网页中body元素的class名包含了开播信息：liveStatus-on、liveStatus-off、liveStatus-replay
         let statusInfo = $("body").attr("class") || ""
-        let online = 0
-        if (statusInfo.indexOf("liveStatus-on") >= 0) {
-          online = 1
-        } else if (statusInfo.indexOf("liveStatus-replay") >= 0) {
-          online = 2
-        }
+        let online = statusInfo.indexOf("liveStatus-on") >= 0
 
         let avatar = $(".host-pic #avatar-img").attr("src")
         let title = $(".host-title").text().trim()
@@ -211,8 +201,7 @@ export namespace anchor {
 
         return new Status({
           avatar: data.avatar,
-          liveUrl: data.online === 1 ? data.liveUrl : `https://www.douyin.com/user/${basic.id}`,
-          streamUrl: data.streamUrl,
+          liveUrl: data.online ? data.liveUrl : `https://www.douyin.com/user/${basic.id}`,
           name: data.name || "[缺少数据]",
           online: data.online,
           title: data.title
@@ -326,7 +315,7 @@ export namespace anchor {
         }
 
         let id = `${basic.plat}_${basic.id}`
-        if (status.online === 1) {
+        if (status.online) {
           online++
           console.log(TAG, `主播"${status.name}"(${basic.id}) 在线`)
 

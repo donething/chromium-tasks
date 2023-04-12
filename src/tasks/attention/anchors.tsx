@@ -61,7 +61,7 @@ const getAnchorInfo = async (basic: anchor.Basic,
     id: `${basic.plat}_${basic.id}`,
     avatar: status.avatar || "",
     divider: true,
-    isMarked: status.online === 1,
+    isMarked: status.online,
     isNewAdded: isNewAdded,
     primary: <Button color={"inherit"} href={status.liveUrl} target="_blank"
                      sx={{padding: 0, margin: 0, ...sxOneLine}}>{status.name}</Button>,
@@ -114,7 +114,7 @@ const Anchors = (props: { sx?: SxProps<Theme> }): JSX.Element => {
 
     // 保存到存储
     anchors.list.push(basic)
-    chrome.storage.sync.set({attentions: data.attentions})
+    await chrome.storage.sync.set({attentions: data.attentions})
     console.log("已添加主播", basic)
     showSb({open: true, severity: "success", message: "已添加主播"})
 
@@ -140,23 +140,23 @@ const Anchors = (props: { sx?: SxProps<Theme> }): JSX.Element => {
     size: "small"
   }
 
+  const init = async () => {
+    // 读取存储的数据
+    let data = await chrome.storage.sync.get({attentions: {anchors: {}}})
+    let anchors: AItemType<anchor.Basic> = data.attentions.anchors
+
+    // 设置界面的值
+    setSwEnable(anchors.enable !== false)
+    setSwNo(anchors.enableNotify !== false)
+
+    // 获取状态并显示
+    anchors.list?.map(async basic => {
+      getAnchorInfo(basic, setInfos, showSb).then(props =>
+        setInfos(oldArray => insertOrdered(oldArray, props, sortRules)))
+    })
+  }
+
   useEffect(() => {
-    const init = async () => {
-      // 读取存储的数据
-      let data = await chrome.storage.sync.get({attentions: {anchors: {}}})
-      let anchors: AItemType<anchor.Basic> = data.attentions.anchors
-
-      // 设置界面的值
-      setSwEnable(anchors.enable !== false)
-      setSwNo(anchors.enableNotify !== false)
-
-      // 获取状态并显示
-      anchors.list?.map(async basic => {
-        getAnchorInfo(basic, setInfos, showSb).then(props =>
-          setInfos(oldArray => insertOrdered(oldArray, props, sortRules)))
-      })
-    }
-
     // 初始化
     init()
   }, [])
