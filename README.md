@@ -82,3 +82,7 @@ Run with the `--watch` flag (`npm test -- --watch`) to run in interactive watch 
   }
   ```
   
+# 感谢
+
+![JetBrains Logo (Main) logo](https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png)
+[JetBrains software](https://jb.gg/OpenSourceSupport)
