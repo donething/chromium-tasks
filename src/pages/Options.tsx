@@ -18,7 +18,8 @@ const wxTokenInit = {
 // VPS 信息 的初始值
 export const vpsInfoInit = {
   // 网址，如 "https://example.com"
-  addr: ""
+  addr: "",
+  access:""
 }
 
 // 微信 Token 组件
@@ -130,6 +131,8 @@ const VPS = React.memo((): JSX.Element => {
       <CardContent sx={{display: "flex", flexFlow: "column nowrap", gap: 4}}>
         <DoPasswdField label="网址，如 https://a.com" value={vps.addr}
                        setObject={value => setVPS(prev => ({...prev, addr: value}))}/>
+        <DoPasswdField label="访问验证码" value={vps.access}
+                       setObject={value => setVPS(prev => ({...prev, access: value}))}/>
       </CardContent>
 
       <Divider/>
