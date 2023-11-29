@@ -50,6 +50,8 @@ export namespace wb {
   export type WBList = {
     // 是否正确响应
     ok: number
+    // 新请求开始获取的微博帖的 ID。为空""表示可能已读取玩可读的微博，需结束了
+    since_id: string
     data: {
       // 当首次请求时的`page`参数不为`1`时，该值为空，需要避免首次`page`不为`1`的情况
       since_id: string

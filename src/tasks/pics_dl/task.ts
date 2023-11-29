@@ -84,6 +84,11 @@ export const sites = {
           pageTotal = Math.ceil(obj.data.total / 20)
         }
 
+        if (obj.data.list.length === 0 && !obj.since_id) {
+          console.log(`[${task.plat}][${task.id}] 已获取完可读的所有图集`)
+          return {last: lastIdstr, posts: postsList}
+        }
+
         // 获取的数据不正确，重新获取
         if (page < pageTotal && obj.data.list.length === 0) {
           console.log(`[${task.plat}][${task.id}] 获取的数据不正确，将重新获取第 ${page} 页`)
