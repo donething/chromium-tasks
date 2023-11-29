@@ -63,7 +63,7 @@ export const sites = {
         let resp = await request(url).catch(e => {
           console.log(`[${task.plat}][${task.id}] 获取图集出错，网络错误，将重新获取第 ${page} 页`, e)
         })
-        if (!resp) {
+        if (!resp || !resp.ok) {
           if (retry < MAX) {
             console.log(`[${task.plat}][${task.id}] 服务器返回错误，将重新获取第 ${page} 页`)
             retry++
@@ -185,7 +185,7 @@ export const sites = {
         page++
         // 成功一次后，要重置已重试次数
         retry = 0
-        await sleep(Math.random() * 1000)
+        await sleep(Math.random() * 2 * 1000)
       }
     }
   }
