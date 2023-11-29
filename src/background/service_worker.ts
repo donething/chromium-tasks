@@ -1,7 +1,6 @@
 import {anchor} from "../tasks/attention/libs/anchors"
 import {app} from "../tasks/attention/libs/apps"
 import {HDSay} from "../tasks/hdsay"
-import {CCmnn} from "../tasks/ccmnn"
 import {JD} from "../tasks/jd"
 import {HDTime} from "../tasks/hdtime"
 
@@ -20,17 +19,6 @@ chrome.alarms.onAlarm.addListener(async alarm => {
       break
     case "halfhour":
       console.log("开始执行每半小时周期的任务")
-      // 领取矿场金币
-      CCmnn.gainMineCoin()
-      break
-    case CCmnn.TAG_EN:
-      console.log(CCmnn.TAG, `开始执行"${CCmnn.TAG_EN}"周期的任务`)
-      try {
-        await CCmnn.autoReplyAward()
-      } catch (e) {
-        console.log(CCmnn.TAG, "自动回复奖励贴出错", e)
-      }
-      chrome.alarms.create(CCmnn.TAG_EN, {delayInMinutes: 1})
       break
     case "jd":
       console.log(JD.TAG, `开始执行JD定时任务`)
@@ -67,10 +55,4 @@ chrome.runtime.onStartup.addListener(async () => {
 
   // hdtime
   HDTime.sign()
-
-  // ccmnn
-  await CCmnn.startTask()
-  // 自动回复有奖励的帖子
-  // 必须等上面的每日回帖任务完成后，才能开始回复奖励帖子的任务，以免因为网站回帖间隔限制（30秒）造成不必要的麻烦
-  chrome.alarms.create(CCmnn.TAG_EN, {delayInMinutes: 1})
 })

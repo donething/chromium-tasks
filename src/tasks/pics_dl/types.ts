@@ -23,11 +23,15 @@ export namespace pinfo {
     plat: string
     // 该图集的微博 ID
     id: string
+    // 该图集的 URL
+    url: string
+    // 博主名
+    name: string
     // 图集所属用户的 ID
     uid: string
     // 图集的标题
     caption: string
-    // 图集的创建时间（不同于发布时间）
+    // 图集的创建时间（不同于发布时间）。已转为 Unix时间戳（毫秒）
     created: number
     // 最大分辨率的图片地址列表
     urls: Array<string>
@@ -135,7 +139,7 @@ export namespace wb {
     // 用户ID
     id: number
     idstr: string
-    // 博主名，如"XX"
+    // 博主名，如"高集"
     screen_name: string
     // 头像地址（大）
     avatar_large: string

@@ -52,6 +52,10 @@ export const sites = {
       let page = 1
       let pageTotal = 0
       let lastIdstr = task.last
+
+      // 微博 API 经常抽风，需要重试
+      let retry = 0
+      const MAX = 3
       while (true) {
         // 获取数据、解析
         // feature 为 0 表示获取原贴+转帖；为 1 表示只获取原贴
@@ -60,7 +64,13 @@ export const sites = {
           console.log(`[${task.plat}][${task.id}] 获取图集出错，网络错误，将重新获取第 ${page} 页`, e)
         })
         if (!resp) {
-          continue
+          if (retry < MAX) {
+            console.log(`[${task.plat}][${task.id}] 服务器返回错误，将重新获取第 ${page} 页`)
+            retry++
+            continue
+          }
+
+          return undefined
         }
 
         let text = await resp.text()
@@ -75,8 +85,13 @@ export const sites = {
         // 服务器暂时错误，需重试
         //返回的是非JSON数据，无法解析，所以无法通过页数判断是否继续，所以放在`parse`前面
         if (text.indexOf("400 Bad Request") >= 0 || text.indexOf("Internal Server Error") >= 0) {
-          console.log(`[${task.plat}][${task.id}] 获取图集出错，服务器返回错误，将重新获取第 ${page} 页`)
-          continue
+          if (retry < MAX) {
+            console.log(`[${task.plat}][${task.id}] 服务器返回错误，将重新获取第 ${page} 页`)
+            retry++
+            continue
+          }
+
+          return undefined
         }
 
         let obj: wb.WBList = JSON.parse(text)
@@ -84,15 +99,16 @@ export const sites = {
           pageTotal = Math.ceil(obj.data.total / 20)
         }
 
-        if (obj.data.list.length === 0 && !obj.since_id) {
-          console.log(`[${task.plat}][${task.id}] 已获取完可读的所有图集`)
-          return {last: lastIdstr, posts: postsList}
-        }
-
         // 获取的数据不正确，重新获取
+        // 重试几次失败后，作为没有更多数据处理以返回
         if (page < pageTotal && obj.data.list.length === 0) {
-          console.log(`[${task.plat}][${task.id}] 获取的数据不正确，将重新获取第 ${page} 页`)
-          continue
+          if (retry < MAX) {
+            console.log(`[${task.plat}][${task.id}] 获取的数据不正确，将重新获取第 ${page} 页`)
+            retry++
+            continue
+          }
+
+          return {last: lastIdstr, posts: postsList}
         }
 
         // 提取图片的下载链接
@@ -140,15 +156,17 @@ export const sites = {
 
           // 该条微博的标题、创建时间
           // 去除特殊字符
-          let caption = payload.text_raw.replace(/[\s\u200B-\u200D\uFEFF]/g, "") +
-            `\nFrom: ${payload.mblogid}`
-          let created = new Date(payload.created_at).getTime() / 1000
+          let caption = payload.text_raw.replace(/[\s\u200B-\u200D\uFEFF]/g, "")
+          let created = new Date(payload.created_at).getTime()
+          let name = payload.user.screen_name
 
           // 添加图集到数组
           postsList.push({
             plat: "weibo",
             uid: task.id,
+            name: name,
             id: payload.idstr,
+            url: `https://weibo.com/${payload.user.id}/${payload.idstr}`,
             caption: caption,
             created: created,
             urls: album,
@@ -165,6 +183,8 @@ export const sites = {
         }
 
         page++
+        // 成功一次后，要重置已重试次数
+        retry = 0
         await sleep(Math.random() * 1000)
       }
     }
@@ -294,6 +314,30 @@ export const startDLPics = async function (setWorking: React.Dispatch<React.SetS
  */
 export const startRetry = (showSb: (ps: DoSnackbarProps) => void) => {
   sendToDL("/api/pics/dl/retry", [], showSb)
+}
+
+/**
+ * 清除之前下载失败的图集数据
+ */
+export const clearFail = async (showSb: (ps: DoSnackbarProps) => void) => {
+  let {addr} = await getPicVpsInfo()
+  let headers = await genAccessHeaders()
+  // @ts-ignore
+  let resp = await request(`${addr}/api/pics/dl/clearfail`, [], {headers})
+    .catch(e => console.log("清除失败的图集出错：", e))
+
+  if (!resp) {
+    showSb({open: true, severity: "error", message: "清除失败的图集出错"})
+    return
+  }
+
+  const obj = await resp.json()
+  if (obj.code !== 0) {
+    showSb({open: true, severity: "error", message: obj.msg})
+    return
+  }
+
+  showSb({open: true, severity: "success", message: "成功清除失败的图集数据"})
 }
 
 // 重置 chromium storage 中存储的任务**进度**

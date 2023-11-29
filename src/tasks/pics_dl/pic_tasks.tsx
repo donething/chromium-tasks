@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react"
 import {request, insertOrdered} from "do-utils"
-import {clearProcess, genAccessHeaders, getPicVpsInfo, sites, startDLPics, startRetry} from "./task"
+import {clearFail, clearProcess, genAccessHeaders, getPicVpsInfo, sites, startDLPics, startRetry} from "./task"
 import IconButton from "@mui/material/IconButton"
 import Switch from "@mui/material/Switch"
 import type {SxProps, Theme} from "@mui/material"
@@ -179,8 +179,13 @@ const Remote = (props: { sx?: SxProps<Theme> }): JSX.Element => {
         {/*  window.open(`${domain}/#/tasks`, "_blank")*/}
         {/*}}>查看进度</Button>*/}
 
-        <Button title="重试下载失败的图集" sx={{width: "fit-content"}}
-                onClick={() => startRetry(showSb)}>重试失败</Button>
+        <Stack direction={"row"} justifyContent={"space-between"}>
+          <Button title="重试下载失败的图集" sx={{width: "fit-content"}}
+                  onClick={() => startRetry(showSb)}>重试失败</Button>
+
+          <Button title="清除失败的图集数据" color={"warning"} sx={{width: "fit-content"}}
+                  onClick={() => clearFail(showSb)}>清除失败</Button>
+        </Stack>
       </DoPanelContent>
     </DoPanel>
   )
