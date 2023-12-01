@@ -386,10 +386,7 @@ export const getPicVpsInfo = async (): Promise<typeof vpsInfoInit> => {
  * 获取带有验证的请求头
  */
 export const genAccessHeaders = async () => {
-  let {access} = await getPicVpsInfo()
-  let t = new Date().getTime()
-  return {
-    "t": t,
-    "s": await sha256(access + t + access)
-  }
+  let {authorization} = await getPicVpsInfo()
+
+  return {"Authorization": "Bearer " + authorization}
 }
