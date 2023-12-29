@@ -3,6 +3,7 @@ import {app} from "../tasks/attention/libs/apps"
 import {HDSay} from "../tasks/hdsay"
 import {JD} from "../tasks/jd"
 import {HDTime} from "../tasks/hdtime"
+import * as nodeseek from "../tasks/nodeseek"
 
 // 监听定时
 chrome.alarms.onAlarm.addListener(async alarm => {
@@ -42,17 +43,20 @@ chrome.runtime.onInstalled.addListener(async () => {
 // 每次运行浏览器时执行
 chrome.runtime.onStartup.addListener(async () => {
   // 因为 manifest mv3 对 service worker 的运行时间有限制，所以打开一个扩展页面绕过限制
-  chrome.tabs.query({url: `chrome-extension://${chrome.runtime.id}/*`}, tabs => {
-    if (tabs.length === 1 && tabs[0].id) {
-      chrome.tabs.remove(tabs[0].id)
-    }
-    console.log("打开扩展页面，绕过 service worker 的运行时间限制")
-    chrome.tabs.create({url: "/index.html#/tasks"})
-  })
+  // chrome.tabs.query({url: `chrome-extension://${chrome.runtime.id}/*`}, tabs => {
+  //   if (tabs.length === 1 && tabs[0].id) {
+  //     chrome.tabs.remove(tabs[0].id)
+  //   }
+  //   console.log("打开扩展页面，绕过 service worker 的运行时间限制")
+  //   chrome.tabs.create({url: "/index.html#/tasks"})
+  // })
 
   // hdsay
   HDSay.startTask()
 
   // hdtime
   HDTime.sign()
+
+  // nodeseek
+  nodeseek.sign()
 })
