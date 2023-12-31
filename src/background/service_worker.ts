@@ -1,29 +1,26 @@
-import {anchor} from "../tasks/attention/libs/anchors"
-import {app} from "../tasks/attention/libs/apps"
-import {HDSay} from "../tasks/hdsay"
 import {JD} from "../tasks/jd"
-import {HDTime} from "../tasks/hdtime"
-import * as nodeseek from "../tasks/nodeseek"
+import Nodeseek from "../tasks/nodeseek/nodeseek"
 
 // 监听定时
 chrome.alarms.onAlarm.addListener(async alarm => {
   switch (alarm.name) {
     case "oneMin":
       console.log("开始执行每分钟周期的任务")
+      Nodeseek.checkNotify()
       break
     case "threeMin":
       console.log("开始执行每3分钟周期的任务")
       // 主播
-      anchor.AnchorUtils.monitor()
+      // anchor.AnchorUtils.monitor()
       // 应用
-      app.AppUtils.monitor()
+      // app.AppUtils.monitor()
       break
     case "halfhour":
       console.log("开始执行每半小时周期的任务")
       break
     case "jd":
       console.log(JD.TAG, `开始执行JD定时任务`)
-      await JD.order("10061537500663", "19_1607_47387_59093")
+      // await JD.order("10061537500663", "19_1607_47387_59093")
       break
   }
 })
@@ -52,11 +49,11 @@ chrome.runtime.onStartup.addListener(async () => {
   // })
 
   // hdsay
-  HDSay.startTask()
+  // HDSay.startTask()
 
   // hdtime
-  HDTime.sign()
+  // HDTime.sign()
 
   // nodeseek
-  nodeseek.sign()
+  Nodeseek.sign()
 })
