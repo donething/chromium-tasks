@@ -2,7 +2,7 @@ import type {NotifyResp, SignResp} from "./types"
 import {notify} from "do-utils"
 import {noIconUrl} from "../../comm/utils"
 
-const TAG = "nodeseek"
+const TAG = "[nodeseek]"
 
 // 签到
 const sign = async () => {

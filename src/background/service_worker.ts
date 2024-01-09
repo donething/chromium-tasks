@@ -1,5 +1,9 @@
 import {JD} from "../tasks/jd"
 import Nodeseek from "../tasks/nodeseek/nodeseek"
+import Sht from "../tasks/sht/sht"
+import RuleActionType = chrome.declarativeNetRequest.RuleActionType
+import HeaderOperation = chrome.declarativeNetRequest.HeaderOperation
+import ResourceType = chrome.declarativeNetRequest.ResourceType
 
 // 监听定时
 chrome.alarms.onAlarm.addListener(async alarm => {
@@ -26,6 +30,10 @@ chrome.alarms.onAlarm.addListener(async alarm => {
 })
 
 chrome.runtime.onInstalled.addListener(async () => {
+  // 修改网络的请求头等信息
+  initDeclarativeNet()
+
+  Sht.sign()
   // 每分钟执行任务
   chrome.alarms.create("oneMin", {delayInMinutes: 1, periodInMinutes: 1})
   // 每3分钟执行任务
@@ -56,4 +64,48 @@ chrome.runtime.onStartup.addListener(async () => {
 
   // nodeseek
   Nodeseek.sign()
+
+  Sht.sign()
 })
+
+/**
+ * 修改网络请求头等
+ * @see https://stackoverflow.com/a/72739149/8179418
+ */
+const initDeclarativeNet = () => {
+  chrome.declarativeNetRequest.updateDynamicRules({
+    // 先移除同名规则，避免重复添加
+    removeRuleIds: [1],
+
+    addRules: [
+      {
+        id: 1,
+        priority: 1,
+        action: {
+          type: RuleActionType.MODIFY_HEADERS,
+          requestHeaders: [
+            {
+              header: "Referer",
+              operation: HeaderOperation.SET,
+              value: "https://www.sehuatang.net"
+            },
+            {
+              header: "Origin",
+              operation: HeaderOperation.SET,
+              value: "https://www.sehuatang.net"
+            }
+          ]
+        },
+        condition: {
+          domains: [chrome.runtime.id],
+          urlFilter: "|https://www.sehuatang.net",
+          resourceTypes: [ResourceType.XMLHTTPREQUEST]
+        }
+      }
+    ]
+  }, () => {
+    if (chrome.runtime.lastError) {
+      console.log("执行 declarativeNetRequest 失败：", chrome.runtime.lastError)
+    }
+  })
+}

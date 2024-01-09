@@ -14,7 +14,8 @@
     "notifications",
     "storage",
     "alarms",
-    "cookies"
+    "cookies",
+    "declarativeNetRequest"
   ],
   "host_permissions": [
     "<all_urls>"
