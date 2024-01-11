@@ -57,7 +57,7 @@ const sign = async () => {
     chrome.tabs.create({url: "https://www.sehuatang.net/plugin.php?id=dd_sign:index"})
     return
   }
-  if (signHtmlText.includes("今日已签到")) {
+  if (signHtmlText.includes(">今日已签到<")) {
     console.log(TAG, "今日已签到过，不重复签到")
     return
   }
@@ -97,6 +97,7 @@ const sign = async () => {
     throw Error(`签到失败：'${signText}'`)
   }
 
+  console.log(TAG, "签到成功")
   return true
 }
 
