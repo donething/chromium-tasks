@@ -15,6 +15,11 @@ const sign = async () => {
   const obj: SignResp = await resp.json()
 
   if (!obj.success) {
+    if (obj.message.includes("请勿重复操作")) {
+      console.log(TAG, "重复签到：", obj.message)
+      return
+    }
+
     console.log(TAG, "签到失败：", obj.message)
     notify({title: `${TAG} 签到失败`, message: obj.message, iconUrl: noIconUrl})
     return
