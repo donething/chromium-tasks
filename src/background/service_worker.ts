@@ -33,7 +33,6 @@ chrome.runtime.onInstalled.addListener(async () => {
   // 修改网络的请求头等信息
   initDeclarativeNet()
 
-  Sht.sign()
   // 每分钟执行任务
   chrome.alarms.create("oneMin", {delayInMinutes: 1, periodInMinutes: 1})
   // 每3分钟执行任务

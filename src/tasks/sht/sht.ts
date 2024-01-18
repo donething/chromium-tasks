@@ -66,7 +66,7 @@ const sign = async () => {
   await replyForSign()
 
   // 点击签到页的签到按钮，解析需要的数据
-  const signBnResp = await request(`${addr}/plugin.php?id=dd_sign&mod=sign&infloat=yes&handlekey=pc_click_ddsign&inajax=1&ajaxtarget=fwin_content_pc_click_ddsign`, new FormData())
+  const signBnResp = await request(`${addr}/plugin.php?id=dd_sign&ac=sign&infloat=yes&handlekey=pc_click_ddsign&inajax=1&ajaxtarget=fwin_content_pc_click_ddsign`, new FormData())
 
   const signBnText = await signBnResp.text()
   const hashResult = signBnText.match(/id="signform_(?<signform>.+?)"[^]+name="formhash"\svalue="(?<formhash>.+)"[^]+id="secqaa_(?<idhash>.+)"/)
@@ -90,7 +90,7 @@ const sign = async () => {
 
   // 真正提交签到
   const data = `formhash=${formhash}&signtoken=&secqaahash=${idhash}&secanswer=${answer}`
-  const signResp = await request(`${addr}/plugin.php?id=dd_sign&mod=sign&signsubmit=yes&handlekey=pc_click_ddsign&signhash=${signform}&inajax=1`, data)
+  const signResp = await request(`${addr}/plugin.php?id=dd_sign&ac=sign&signsubmit=yes&handlekey=pc_click_ddsign&signhash=${signform}&inajax=1`, data)
   const signText = await signResp.text()
 
   if (!signText.includes("签到成功")) {
