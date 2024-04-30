@@ -7,6 +7,12 @@ const TAG = "[SHT]"
 
 const addr = "https://www.sehuatang.net"
 
+// 持久存储的数据
+interface Data {
+  // 已回过贴的 ID
+  ids?: string[]
+}
+
 // 回帖
 const reply = async (tid: string) => {
   // 先访问网页提取 formhash、fid
@@ -23,7 +29,7 @@ const reply = async (tid: string) => {
 
   // 开始真实回帖
   const now = Math.floor(Date.now() / 1000)
-  const data = `file=&message=非常感谢，支持${actress}&posttime=${now}&formhash=${formhash}&usesig=&subject=++`
+  const data = `file=&message=非常感谢，支持 ${actress}&posttime=${now}&formhash=${formhash}&usesig=&subject=++`
   const replyResp = await request(`https://www.sehuatang.net/forum.php?mod=post&action=reply&fid=${fid}&tid=${tid}&extra=page%3D1&replysubmit=yes&infloat=yes&handlekey=fastpost&inajax=1`, data)
   const replyText = await replyResp.text()
   if (!replyText.includes("回复发布成功")) {
@@ -37,14 +43,33 @@ const reply = async (tid: string) => {
 const replyFirstThread = async () => {
   const resp = await request("https://www.sehuatang.net/forum.php?mod=forumdisplay&fid=103")
   const text = await resp.text()
-  const idResult = text.match(/id="normalthread_(\d+)"/)
+  const ids = [...text.matchAll(/id="normalthread_(\d+)"/g)].map(m => m[1])
 
-  if (!idResult || idResult.length < 2) {
-    throw Error("无法解析到帖子的ID")
+  if (!ids || ids.length === 0) {
+    throw Error("无法解析到帖子的 ID")
   }
 
-  console.log(TAG, "今日签到前回帖", `https://www.sehuatang.net/forum.php?mod=viewthread&tid=${idResult[1]}`)
-  return reply(idResult[1])
+  const data: Data = await chrome.storage.sync.get({sht: {}})
+  if (!data.ids) {
+    data.ids = []
+  }
+
+  // 回复一个帖子
+  for (let id of ids) {
+    if (data.ids.includes(id)) {
+      continue
+    }
+
+    console.log(TAG, "回帖：", `https://www.sehuatang.net/forum.php?mod=viewthread&tid=${id}`)
+    await reply(id)
+
+    // 保存回帖记录
+    data.ids.push(id)
+    await chrome.storage.local.set({sht: data})
+    return
+  }
+
+  throw Error("该页面所有帖子都回复过，此次无法回帖")
 }
 
 // 签到
@@ -63,6 +88,7 @@ const sign = async () => {
   }
 
   // 先回帖
+  console.log(TAG, "签到前回帖：")
   await replyFirstThread()
 
   // 点击签到页的签到按钮，解析需要的数据

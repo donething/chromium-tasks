@@ -20,15 +20,15 @@ chrome.alarms.onAlarm.addListener(async alarm => {
       // anchor.AnchorUtils.monitor()
       // 应用
       // app.AppUtils.monitor()
-
+      break
+    case "halfhour":
+      console.log("开始执行每半小时周期的任务")
       // 回帖
       Sht.replyFirstThread().catch(result => {
         console.log(`${Sht.TAG} 回帖失败：`, result)
         notify({title: `${Sht.TAG} 回帖失败`, message: result.toString(), iconUrl: noIconUrl})
       })
-      break
-    case "halfhour":
-      console.log("开始执行每半小时周期的任务")
+
       break
     case "jd":
       console.log(JD.TAG, `开始执行JD定时任务`)
