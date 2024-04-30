@@ -49,7 +49,8 @@ const replyFirstThread = async () => {
     throw Error("无法解析到帖子的 ID")
   }
 
-  const data: Data = await chrome.storage.sync.get({sht: {}})
+  const storage = await chrome.storage.sync.get({sht: {}})
+  const data: Data = storage.sht
   if (!data.ids) {
     data.ids = []
   }
@@ -65,7 +66,7 @@ const replyFirstThread = async () => {
 
     // 保存回帖记录
     data.ids.push(id)
-    await chrome.storage.local.set({sht: data})
+    await chrome.storage.sync.set({sht: data})
     return
   }
 
