@@ -61,6 +61,6 @@ const checkNotify = async () => {
   ])
 }
 
-const Nodeseek = {sign, checkNotify}
+const Nodeseek = {sign, checkNotify, TAG}
 
 export default Nodeseek

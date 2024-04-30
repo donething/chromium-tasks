@@ -12,18 +12,18 @@ const reply = async (tid: string) => {
   // 先访问网页提取 formhash、fid
   const htmlResp = await request(`https://www.sehuatang.net/forum.php?mod=viewthread&tid=${tid}`)
   const htmlText = await htmlResp.text()
-  const htmlResult = htmlText.match(/name="formhash"\svalue="(?<formhash>.+?)"[^]+name="srhfid"\svalue="(?<fid>\d+)"/)
+  const htmlResult = htmlText.match(/【出演女优】：(?<actress>.+?)【[^]+name="formhash"\svalue="(?<formhash>.+?)"[^]+name="srhfid"\svalue="(?<fid>\d+)"/)
   if (!htmlResult || !htmlResult.groups) {
-    throw Error(`提取 formhash、fid 出错：'${htmlText}'`)
+    throw Error(`提取 actress、formhash、fid 出错：'${htmlText}'`)
   }
-  const {formhash, fid} = htmlResult.groups
+  const {actress, formhash, fid} = htmlResult.groups
 
   // 预提交回帖
   await fetch("https://www.sehuatang.net/forum.php?mod=ajax&action=checkpostrule&inajax=yes&ac=reply")
 
   // 开始真实回帖
   const now = Math.floor(Date.now() / 1000)
-  const data = `file=&message=楼主，感谢分享&posttime=${now}&formhash=${formhash}&usesig=&subject=++`
+  const data = `file=&message=非常感谢，支持${actress}&posttime=${now}&formhash=${formhash}&usesig=&subject=++`
   const replyResp = await request(`https://www.sehuatang.net/forum.php?mod=post&action=reply&fid=${fid}&tid=${tid}&extra=page%3D1&replysubmit=yes&infloat=yes&handlekey=fastpost&inajax=1`, data)
   const replyText = await replyResp.text()
   if (!replyText.includes("回复发布成功")) {
@@ -34,7 +34,7 @@ const reply = async (tid: string) => {
 }
 
 // 每日签到前，需要先回一帖
-const replyForSign = async () => {
+const replyFirstThread = async () => {
   const resp = await request("https://www.sehuatang.net/forum.php?mod=forumdisplay&fid=103")
   const text = await resp.text()
   const idResult = text.match(/id="normalthread_(\d+)"/)
@@ -63,7 +63,7 @@ const sign = async () => {
   }
 
   // 先回帖
-  await replyForSign()
+  await replyFirstThread()
 
   // 点击签到页的签到按钮，解析需要的数据
   const signBnResp = await request(`${addr}/plugin.php?id=dd_sign&ac=sign&infloat=yes&handlekey=pc_click_ddsign&inajax=1&ajaxtarget=fwin_content_pc_click_ddsign`, new FormData())
@@ -122,6 +122,6 @@ const calStr = (expression: string) => {
   }
 }
 
-const Sht = {sign}
+const Sht = {sign, replyFirstThread, TAG}
 
 export default Sht

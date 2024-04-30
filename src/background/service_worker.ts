@@ -4,6 +4,8 @@ import Sht from "../tasks/sht/sht"
 import RuleActionType = chrome.declarativeNetRequest.RuleActionType
 import HeaderOperation = chrome.declarativeNetRequest.HeaderOperation
 import ResourceType = chrome.declarativeNetRequest.ResourceType
+import {notify} from "do-utils"
+import {noIconUrl} from "../comm/utils"
 
 // 监听定时
 chrome.alarms.onAlarm.addListener(async alarm => {
@@ -18,6 +20,12 @@ chrome.alarms.onAlarm.addListener(async alarm => {
       // anchor.AnchorUtils.monitor()
       // 应用
       // app.AppUtils.monitor()
+
+      // 回帖
+      Sht.replyFirstThread().catch(result => {
+        console.log(`${Sht.TAG} 回帖失败：`, result)
+        notify({title: `${Sht.TAG} 回帖失败`, message: result.toString(), iconUrl: noIconUrl})
+      })
       break
     case "halfhour":
       console.log("开始执行每半小时周期的任务")
@@ -62,9 +70,15 @@ chrome.runtime.onStartup.addListener(async () => {
   // HDTime.sign()
 
   // nodeseek
-  Nodeseek.sign()
+  Nodeseek.sign().catch(result => {
+    console.log(`${Nodeseek.TAG} 签到失败：`, result)
+    notify({title: `${Nodeseek.TAG} 签到失败`, message: result.toString(), iconUrl: noIconUrl})
+  })
 
-  Sht.sign()
+  Sht.sign().catch(result => {
+    console.log(`${Sht.TAG} 签到失败：`, result)
+    notify({title: `${Sht.TAG} 签到失败`, message: result.toString(), iconUrl: noIconUrl})
+  })
 })
 
 /**
