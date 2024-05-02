@@ -74,6 +74,12 @@ chrome.runtime.onStartup.addListener(async () => {
     console.log(`${Nodeseek.TAG} 签到失败：`, result)
     notify({title: `${Nodeseek.TAG} 签到失败`, message: result.toString(), iconUrl: noIconUrl})
   })
+
+  // sht 签到
+  Sht.sign().catch(result => {
+    console.log(`${Sht.TAG} 签到失败：`, result)
+    notify({title: `${Sht.TAG} 签到失败`, message: result.toString(), iconUrl: noIconUrl})
+  })
 })
 
 /**
