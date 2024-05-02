@@ -29,7 +29,7 @@ const reply = async (tid: string) => {
 
   // 开始真实回帖
   const now = Math.floor(Date.now() / 1000)
-  const data = `file=&message=非常感谢，支持${actress}&posttime=${now}&formhash=${formhash}&usesig=&subject=++`
+  const data = `file=&message=非常感谢，支持 ${actress}&posttime=${now}&formhash=${formhash}&usesig=&subject=++`
   const replyResp = await request(`https://www.sehuatang.net/forum.php?mod=post&action=reply&fid=${fid}&tid=${tid}&extra=page%3D1&replysubmit=yes&infloat=yes&handlekey=fastpost&inajax=1`, data)
   const replyText = await replyResp.text()
   if (!replyText.includes("回复发布成功")) {
@@ -40,8 +40,8 @@ const reply = async (tid: string) => {
 }
 
 // 每日签到前，需要先回一帖
-const replyFirstThread = async (fid = "103") => {
-  const resp = await request(`https://www.sehuatang.net/forum.php?mod=forumdisplay&fid=${fid}`)
+const replyFirstThread = async () => {
+  const resp = await request("https://www.sehuatang.net/forum.php?mod=forumdisplay&fid=103")
   const text = await resp.text()
   const ids = [...text.matchAll(/id="normalthread_(\d+)"/g)].map(m => m[1])
 
@@ -70,9 +70,7 @@ const replyFirstThread = async (fid = "103") => {
     return
   }
 
-  // throw Error("该页面所有帖子都回复过，此次无法回帖")
-  // 尝试回复另一分类下的帖子
-  await replyFirstThread("2")
+  throw Error("该页面所有帖子都回复过，此次无法回帖")
 }
 
 // 签到
