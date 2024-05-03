@@ -1,5 +1,5 @@
 import type {NotifyResp, SignResp} from "./types"
-import {notify} from "do-utils"
+import {notify, sleep} from "do-utils"
 import {noIconUrl} from "../../comm/utils"
 
 const TAG = "[nodeseek]"
@@ -27,7 +27,6 @@ const sign = async () => {
 
   console.log(TAG, "签到成功：", obj.message)
 }
-
 // 检查通知
 const checkNotify = async () => {
   const resp = await fetch("https://www.nodeseek.com/api/notification/unread-count")
@@ -61,6 +60,6 @@ const checkNotify = async () => {
   ])
 }
 
-const Nodeseek = {sign, checkNotify, TAG}
+const Nodeseek = {TAG, sign, checkNotify}
 
 export default Nodeseek

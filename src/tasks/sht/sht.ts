@@ -40,13 +40,13 @@ const reply = async (tid: string) => {
 }
 
 // 每日签到前，需要先回一帖
-const replyFirstThread = async () => {
+const replyFirstThread = async (tag = "") => {
   const resp = await request("https://www.sehuatang.net/forum.php?mod=forumdisplay&fid=103")
   const text = await resp.text()
   const ids = [...text.matchAll(/id="normalthread_(\d+)"/g)].map(m => m[1])
 
   if (!ids || ids.length === 0) {
-    throw Error("无法解析到帖子的 ID")
+    throw Error(`[${tag}]无法解析到帖子的 ID`)
   }
 
   const storage = await chrome.storage.sync.get({sht: {}})
@@ -61,7 +61,7 @@ const replyFirstThread = async () => {
       continue
     }
 
-    console.log(TAG, "回帖：", `https://www.sehuatang.net/forum.php?mod=viewthread&tid=${id}`)
+    console.log(TAG, `[${tag}] 回帖：`, `https://www.sehuatang.net/forum.php?mod=viewthread&tid=${id}`)
     await reply(id)
 
     // 保存回帖记录
@@ -70,7 +70,7 @@ const replyFirstThread = async () => {
     return
   }
 
-  throw Error("该页面所有帖子都回复过，此次无法回帖")
+  throw Error(`[${tag}] 该页面所有帖子都回复过，此次无法回帖`)
 }
 
 // 签到
@@ -90,7 +90,7 @@ const sign = async () => {
 
   // 先回帖
   console.log(TAG, "签到前回帖：")
-  await replyFirstThread()
+  await replyFirstThread("签到")
 
   // 点击签到页的签到按钮，解析需要的数据
   const signBnResp = await request(`${addr}/plugin.php?id=dd_sign&ac=sign&infloat=yes&handlekey=pc_click_ddsign&inajax=1&ajaxtarget=fwin_content_pc_click_ddsign`, new FormData())

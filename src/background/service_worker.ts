@@ -4,8 +4,17 @@ import Sht from "../tasks/sht/sht"
 import RuleActionType = chrome.declarativeNetRequest.RuleActionType
 import HeaderOperation = chrome.declarativeNetRequest.HeaderOperation
 import ResourceType = chrome.declarativeNetRequest.ResourceType
-import {notify} from "do-utils"
+import {notify, sleep} from "do-utils"
 import {noIconUrl} from "../comm/utils"
+
+// 持久存储的数据
+interface Data {
+  // 浏览器的当次启动的时间戳（毫秒）
+  startup: number
+}
+
+// 持久存储数据的键
+const KEY = "sw"
 
 // 监听定时
 chrome.alarms.onAlarm.addListener(async alarm => {
@@ -14,6 +23,7 @@ chrome.alarms.onAlarm.addListener(async alarm => {
       console.log("开始执行每分钟周期的任务")
       Nodeseek.checkNotify()
       break
+
     case "threeMin":
       console.log("开始执行每3分钟周期的任务")
       // 主播
@@ -21,15 +31,23 @@ chrome.alarms.onAlarm.addListener(async alarm => {
       // 应用
       // app.AppUtils.monitor()
       break
+
     case "halfhour":
       console.log("开始执行每半小时周期的任务")
       // 回帖
-      Sht.replyFirstThread().catch(result => {
-        console.log(`${Sht.TAG} 回帖失败：`, result)
-        notify({title: `${Sht.TAG} 回帖失败`, message: result.toString(), iconUrl: noIconUrl})
-      })
+      // 因为 Alarm 机制，避免因关闭而错过时间后立即执行，导致和签到重复回帖，所以判断启动几分钟后才执行任务
+      const payload = await chrome.storage.sync.get({[KEY]: {}})
+      const data: Data = payload[KEY]
+
+      if (Date.now() - (data.startup || 0) >= 3 * 60 * 1000) {
+        Sht.replyFirstThread("刷分").catch(result => {
+          console.log(`${Sht.TAG} 回帖失败：`, result)
+          notify({title: `${Sht.TAG} 回帖失败`, message: result.toString(), iconUrl: noIconUrl})
+        })
+      }
 
       break
+
     case "jd":
       console.log(JD.TAG, `开始执行JD定时任务`)
       // await JD.order("10061537500663", "19_1607_47387_59093")
@@ -54,6 +72,12 @@ chrome.runtime.onInstalled.addListener(async () => {
 
 // 每次运行浏览器时执行
 chrome.runtime.onStartup.addListener(async () => {
+  // 存储浏览器本地的启动时间
+  const payload = await chrome.storage.sync.get({[KEY]: {}})
+  const data: Data = payload[KEY]
+  data.startup = Date.now()
+  await chrome.storage.sync.set({[KEY]: data})
+
   // 因为 manifest mv3 对 service worker 的运行时间有限制，所以打开一个扩展页面绕过限制
   // chrome.tabs.query({url: `chrome-extension://${chrome.runtime.id}/*`}, tabs => {
   //   if (tabs.length === 1 && tabs[0].id) {
