@@ -90,7 +90,15 @@ const sign = async () => {
 
   // 先回帖
   console.log(TAG, "签到前回帖：")
-  await replyFirstThread("签到")
+  try {
+    await replyFirstThread("签到")
+  } catch (e: any) {
+    if (e.toString().includes("发表间隔少于")) {
+      console.log("表名之前已发布回复，可以继续签到")
+    } else {
+      throw e
+    }
+  }
 
   // 点击签到页的签到按钮，解析需要的数据
   const signBnResp = await request(`${addr}/plugin.php?id=dd_sign&ac=sign&infloat=yes&handlekey=pc_click_ddsign&inajax=1&ajaxtarget=fwin_content_pc_click_ddsign`, new FormData())
